@@ -1,0 +1,146 @@
+html {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    position: absolute;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #1c1c1c;
+}
+
+.contain {
+    position: sticky;
+    width: 100%;
+    height: 850px;
+    top: 0;
+    left: 0;
+}
+
+.map {
+    position: absolute;
+    width: 90%;
+    height: 70%;
+    top: 17%;
+    left: 4.5%;
+    border: solid black 6px;
+    border-radius: 2%;
+    /*    overflow-x: auto;
+        overflow-y: hidden;*/
+    overflow: hidden;
+}
+
+.map .content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4000px;
+    height: 100%;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), url("./img/map.png");
+    background-position: bottom center;
+    background-repeat: repeat;
+    z-index: -1;
+
+}
+
+#unitCreate {
+    position: sticky;
+    top: 2%;
+    left: 83%;
+    width: 120px;
+    height: 100px;
+    font-size: 15px;
+    border-radius: 15px;
+    color: white;
+    background-color: rgba(0, 0, 0, 1);
+    margin: 0;
+}
+
+.left {
+    position: absolute;
+    width: 20%;
+    height: 70%;
+    top: 20.7%;
+    left: 4.5%;
+    /*    background-color: #e30a0a;*/
+    transition: all 0.5s linear;
+}
+
+.center {
+    position: absolute;
+    width: 40%;
+    height: 70%;
+    top: 20.7%;
+    left: 30%;
+    /*    background-color: #674141;*/
+    transition: all 0.5s linear;
+}
+
+.right {
+    position: absolute;
+    width: 20%;
+    height: 70%;
+    top: 20.7%;
+    left: 75.7%;
+    /*    background-color: #2c4f63;*/
+    transition: all 0.5s linear;
+}
+
+.option {
+    position: absolute;
+    width: 100%;
+}
+
+p {
+    font-size: 48px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 40px;
+    margin-bottom: 0;
+    color: #ffffff;
+}
+
+#audio_btn {
+    position: sticky;
+    width: 50px;
+    height: 50px;
+    top: 13%;
+    left: 90%;
+    background-color: rgb(0, 0, 0, 0);
+    border: none;
+    font-size: 30px;
+}
+
+
+#friendly-base-tower {
+    position: absolute;
+    width: 400px;
+    height: 330px;
+    top: 37%;
+    left: 3%;
+    background-image: url("img/base-tower.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+#enemy-base-tower {
+    position: absolute;
+    width: 400px;
+    height: 330px;
+    top: 37%;
+    left: 88%;
+    background-image: url("img/base-tower.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    filter: grayscale(1) brightness(80%);
+}
