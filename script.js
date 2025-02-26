@@ -6,6 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const audio = document.getElementById("audio");
   const audioBtn = document.getElementById("audio_btn");
   const icon = audioBtn.querySelector("i");
+  const start = document.querySelector(".start");
+  const stage = document.querySelector(".stage");
+  const easy = document.getElementById("easy");
+  const content = document.querySelector(".content");
 
   audioBtn.addEventListener("click", () => {
     if (audio.paused) {
@@ -17,6 +21,16 @@ document.addEventListener("DOMContentLoaded", () => {
       icon.classList.add("fa-volume-xmark");
       audio.pause();
     }
+  });
+
+  start.addEventListener("click", () => {
+    start.style.display = "none";
+    stage.style.display = "flex";
+  });
+
+  easy.addEventListener("click", () => {
+    stage.style.display = "none";
+    content.style.display = "block";
   });
 });
 
