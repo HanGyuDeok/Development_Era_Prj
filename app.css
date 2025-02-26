@@ -197,3 +197,13 @@ p {
     background-position: center;
     filter: grayscale(1) brightness(80%);
 }
+
+/* 기존 CSS 유지, 아래 추가 */
+#friendly-unit,
+#enemy-unit {
+    /* 기존 HTML에 있던 요소는 사용하지 않으므로 스타일 제거 가능 */
+}
+
+.unit div {
+    transition: left 0.1s linear; /* 부드러운 이동을 위해 */
+}
