@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
       this.isEnemy = isEnemy;
       this.isFighting = false;
 
-      this.element.classList.add("unit5-moving"); // 움직임 구현
+      this.element.classList.add("unit1-moving"); // 움직임 구현
     }
 
     update() {

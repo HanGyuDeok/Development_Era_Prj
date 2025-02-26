@@ -225,6 +225,26 @@ p {
     animation-timing-function: step-start;
 }
 
+@keyframes unit1-attack {
+    0% { background-image: url('./ani/unit1_ani/unit1_attack_1.png'); }
+    16.67% { background-image: url('./ani/unit1_ani/unit1_attack_2.png'); }
+    33.33% { background-image: url('./ani/unit1_ani/unit1_attack_3.png'); }
+    50% { background-image: url('./ani/unit1_ani/unit1_attack_4.png'); }
+    66.67% { background-image: url('./ani/unit1_ani/unit1_attack_5.png'); }
+    83.33% { background-image: url('./ani/unit1_ani/unit1_attack_6.png'); }
+    100% { background-image: url('./ani/unit1_ani/unit1_attack_1.png'); }
+}
+
+.unit1-attack {
+    animation: unit1-attack 0.5s steps(6, start) infinite;
+    background-size: contain;
+    background-repeat: no-repeat;
+    will-change: background-image;
+    image-rendering: pixelated;
+    animation-timing-function: step-start;
+}
+
+
 @keyframes unit2-moving {
     0% { background-image: url('./ani/unit2_ani/unit2-1.png'); }
     20% { background-image: url('./ani/unit2_ani/unit2-2.png'); }
