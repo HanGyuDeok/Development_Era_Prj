@@ -2,11 +2,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const audio = document.getElementById("audio");
   const audioBtn = document.getElementById("audio_btn");
   const icon = audioBtn.querySelector("i");
+  const start = document.querySelector(".start");
+  const stage = document.querySelector(".stage");
+  const easy = document.getElementById("easy");
   const map = document.querySelector(".map");
   const content = document.querySelector(".content");
   const unitCreateBtn = document.getElementById("unitCreate");
   const leftSection = document.querySelector(".left");
   const rightSection = document.querySelector(".right");
+  const centerSection = document.querySelector('.center');
 
   let isMouseInLeft = false;
   let isMouseInRight = false;
@@ -25,6 +29,17 @@ document.addEventListener("DOMContentLoaded", () => {
       audio.pause();
     }
   });
+
+  start.addEventListener("click", () => {
+    start.style.display = "none";
+    stage.style.display = "flex";
+  });
+
+  easy.addEventListener("click", () => {
+    stage.style.display = "none";
+    content.style.display = "block";
+  });
+});
 
   // 맵 스크롤 이벤트
   leftSection.addEventListener("mouseenter", () => {
