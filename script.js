@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let isMouseInRight = false;
   const friendlyUnits = [];
   const enemyUnits = [];
-  const MAX_FRIENDLY_UNITS = 5; // 최대 유닛 수 제한
+  const MAX_FRIENDLY_UNITS = 100; // 최대 유닛 수 제한
 
   // 오디오 버튼 이벤트
   if (audioBtn && audio && icon) {
@@ -101,6 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
       this.range = range || 50; // 기본 사거리 50
       this.isEnemy = isEnemy;
       this.isFighting = false;
+      this.isMoving = false;
     }
 
     update() {
@@ -205,10 +206,42 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  const unitSpacing = 200; // 유닛 간 최소 간격
+  const startX = 400; // 유닛이 생성될 기본 위치
+
+  function dontOverlap() {
+    let newX = startX;
+
+    // 기존 유닛들과 겹치지 않는 위치 찾기
+    friendlyUnits.forEach((unit, index) => {
+      if (index > 0) { // 첫 번째 유닛은 앞에 유닛이 없으므로 건너뜁니다.
+        const distance = Math.abs(friendlyUnits[index].x - friendlyUnits[index - 1].x); // 앞과 뒤 유닛 거리 계산
+
+        if (distance < unitSpacing) { // 앞 유닛과 뒷 유닛의 거리가 unitSpacing보다 적으면
+          friendlyUnits[index].speed = 0; // 뒤 유닛 정지
+          console.log(`유닛 ${index}가 유닛 ${index - 1}과 너무 가까워서 정지합니다.`);
+        } else {
+          // 거리 간격이 충분해지면 뒤 유닛이 다시 움직이도록
+          if (friendlyUnits[index].speed === 0 && friendlyUnits[index - 1].speed > 0) {
+            friendlyUnits[index].speed = 2; // 뒤 유닛이 다시 움직이도록 속도 설정
+            console.log(`유닛 ${index}가 유닛 ${index - 1}을 따라 다시 움직입니다.`);
+          }
+        }
+      }
+    });
+
+    return newX;
+  }
+
+
+
+
+
   // 게임 루프
   function gameLoop() {
     friendlyUnits.forEach((unit) => unit.update());
     enemyUnits.forEach((unit) => unit.update());
+    dontOverlap();
     checkCollisions();
     requestAnimationFrame(gameLoop);
   }
