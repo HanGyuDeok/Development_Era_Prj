@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // DOM 요소
   const audio = document.getElementById("audio");
   const audioBtn = document.getElementById("audio_btn");
   const icon = audioBtn.querySelector("i");
@@ -8,66 +9,77 @@ document.addEventListener("DOMContentLoaded", () => {
   const map = document.querySelector(".map");
   const content = document.querySelector(".content");
   const unitCreateBtn = document.getElementById("unitCreate");
-  const leftSection = document.querySelector(".left");
-  const rightSection = document.querySelector(".right");
-  const centerSection = document.querySelector('.center');
+  const leftSection = document.querySelector(".map-section.left"); // HTML에 맞게 수정
+  const rightSection = document.querySelector(".map-section.right"); // HTML에 맞게 수정
 
+  // 상태 변수
   let isMouseInLeft = false;
   let isMouseInRight = false;
   const friendlyUnits = [];
   const enemyUnits = [];
+  const MAX_FRIENDLY_UNITS = 5; // 최대 유닛 수 제한
 
   // 오디오 버튼 이벤트
-  audioBtn.addEventListener("click", () => {
-    if (audio.paused) {
-      icon.classList.remove("fa-volume-xmark");
-      icon.classList.add("fa-volume-high");
-      audio.play();
-    } else {
-      icon.classList.remove("fa-volume-high");
-      icon.classList.add("fa-volume-xmark");
-      audio.pause();
-    }
-  });
+  if (audioBtn && audio && icon) {
+    audioBtn.addEventListener("click", () => {
+      if (audio.paused) {
+        icon.classList.remove("fa-volume-xmark");
+        icon.classList.add("fa-volume-high");
+        audio.play();
+      } else {
+        icon.classList.remove("fa-volume-high");
+        icon.classList.add("fa-volume-xmark");
+        audio.pause();
+      }
+    });
+  }
 
-  start.addEventListener("click", () => {
-    start.style.display = "none";
-    stage.style.display = "flex";
-  });
+  // 시작 화면 이벤트
+  if (start && stage) {
+    start.addEventListener("click", () => {
+      start.style.display = "none";
+      stage.style.display = "flex";
+    });
+  }
 
-  easy.addEventListener("click", () => {
-    stage.style.display = "none";
-    content.style.display = "block";
-  });
-});
+  if (easy && content && map) {
+    easy.addEventListener("click", () => {
+      stage.style.display = "none";
+      content.style.display = "block";
+      map.style.display = "block";
+      unitCreateBtn.style.display = "block";
+    });
+  }
 
   // 맵 스크롤 이벤트
-  leftSection.addEventListener("mouseenter", () => {
-    isMouseInLeft = true;
-    scrollContent();
-  });
-  rightSection.addEventListener("mouseenter", () => {
-    isMouseInRight = true;
-    scrollContent();
-  });
-  map.addEventListener("mouseleave", () => {
-    isMouseInLeft = false;
-    isMouseInRight = false;
-  });
-  map.addEventListener("mouseenter", () => {
-    isMouseInRight = false;
-    isMouseInLeft = false;
-  });
+  if (leftSection && rightSection && map) {
+    leftSection.addEventListener("mouseenter", () => {
+      isMouseInLeft = true;
+      scrollContent();
+    });
+    rightSection.addEventListener("mouseenter", () => {
+      isMouseInRight = true;
+      scrollContent();
+    });
+    map.addEventListener("mouseleave", () => {
+      isMouseInLeft = false;
+      isMouseInRight = false;
+    });
+    map.addEventListener("mouseenter", () => {
+      isMouseInRight = false;
+      isMouseInLeft = false;
+    });
 
-  function scrollContent() {
-    if (isMouseInLeft) map.scrollLeft -= 10;
-    if (isMouseInRight) map.scrollLeft += 10;
+    function scrollContent() {
+      if (isMouseInLeft) map.scrollLeft -= 10;
+      if (isMouseInRight) map.scrollLeft += 10;
+    }
+    setInterval(scrollContent, 6);
   }
-  setInterval(scrollContent, 6);
 
   // 유닛 클래스 정의
   class Unit {
-    constructor({ x, y, isEnemy = false, health, attPower}) {
+    constructor({ x, y, isEnemy = false, health, attPower, range }) {
       this.element = document.createElement("div");
       this.element.style.position = "absolute";
       this.element.style.width = "200px";
@@ -82,9 +94,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       this.x = x;
       this.y = y;
-      this.speed = isEnemy ? -2 : 2; // 적은 왼쪽, 아군은 오른쪽으로 이동
+      this.speed = isEnemy ? -2 : 2;
       this.health = health;
       this.attackPower = attPower;
+      this.range = range || 50; // 기본 사거리 50
       this.isEnemy = isEnemy;
       this.isFighting = false;
     }
@@ -94,8 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
         this.x += this.speed;
         this.element.style.left = `${this.x}px`;
       }
-
-      // 맵 밖으로 나가면 제거
       if (this.x < -50 || this.x > 4050) {
         this.remove();
       }
@@ -111,35 +122,54 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     remove() {
-      content.removeChild(this.element);
+      if (this.element.parentNode) {
+        content.removeChild(this.element);
+      }
       const array = this.isEnemy ? enemyUnits : friendlyUnits;
       const index = array.indexOf(this);
       if (index > -1) array.splice(index, 1);
     }
   }
 
-  // 유닛 생성 버튼 이벤트{ 유닛이 한개인경우 }
-  unitCreateBtn.addEventListener("click", () => {
-    const unit = new Unit({ x: 400, y: 350, health: 100, attPower: 20}); // 왼쪽 기지에서 시작
-    friendlyUnits.push(unit);
-  });
-  // 유닛생성 5개
+  // 유닛 생성 버튼 이벤트
+  if (unitCreateBtn) {
+    unitCreateBtn.addEventListener("click", () => {
+      if (friendlyUnits.length < MAX_FRIENDLY_UNITS) {
+        const unit = new Unit({
+          x: 400,
+          y: 350,
+          health: 100,
+          attPower: 20,
+          range: 50,
+        });
+        friendlyUnits.push(unit);
+      } else {
+        console.log("최대 유닛 수(5개)에 도달했습니다!");
+      }
+    });
+  }
 
   // 적 유닛 자동 생성
   setInterval(() => {
     if (enemyUnits.length < 1) {
-      const enemy = new Unit({ x: 3600, y: 350, isEnemy: true, health: 100 }); // 오른쪽 기지에서 시작
+      const enemy = new Unit({
+        x: 3600,
+        y: 350,
+        isEnemy: true,
+        health: 100,
+        attPower: 10,
+        range: 50,
+      });
       enemyUnits.push(enemy);
     }
-  }, 5000); // 5초마다 1마리 생성
+  }, 5000);
 
-  // 충돌 감지 및 공격
-  // 50수치값을 new 유닛 사거리 받아서
+  // 충돌 감지 및 공격 (사거리 반영)
   function checkCollisions() {
     friendlyUnits.forEach((friendly) => {
       enemyUnits.forEach((enemy) => {
         const distance = Math.abs(friendly.x - enemy.x);
-        if (distance < 50) { // 유닛 간 거리가 50px 미만일 때
+        if (distance < friendly.range || distance < enemy.range) {
           friendly.attack(enemy);
           enemy.attack(friendly);
         }
