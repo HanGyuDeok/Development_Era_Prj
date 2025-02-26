@@ -101,7 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
       this.range = range || 50; // 기본 사거리 50
       this.isEnemy = isEnemy;
       this.isFighting = false;
-      this.element.classList.add("unit1-moving"); // 움직임 구현
       this.isMoving = false;
     }
 
