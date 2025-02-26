@@ -9,8 +9,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const map = document.querySelector(".map");
   const content = document.querySelector(".content");
   const unitCreateBtn = document.getElementById("unitCreate");
-  const leftSection = document.querySelector(".map-section.left"); // HTML에 맞게 수정
-  const rightSection = document.querySelector(".map-section.right"); // HTML에 맞게 수정
+  const unitSelectionContainer = document.getElementById("unitSelectionContainer");
+  const leftSection = document.querySelector(".map-section.left");
+  const rightSection = document.querySelector(".map-section.right");
 
   // 상태 변수
   let isMouseInLeft = false;
@@ -135,14 +136,38 @@ document.addEventListener("DOMContentLoaded", () => {
   if (unitCreateBtn) {
     unitCreateBtn.addEventListener("click", () => {
       if (friendlyUnits.length < MAX_FRIENDLY_UNITS) {
-        const unit = new Unit({
-          x: 400,
-          y: 350,
-          health: 100,
-          attPower: 20,
-          range: 50,
+        unitCreateBtn.style.display = 'none';
+        unitSelectionContainer.style.display = 'block';
+
+        let buttonsHTML = '';
+        for (let i = 1; i <= 5; i++) {
+          buttonsHTML += `<button class="unit-select" data-unit="${i}">유닛 ${i}</button>`;
+        }
+        buttonsHTML += '<button id="backButton">뒤로 가기</button>';
+
+        unitSelectionContainer.innerHTML = buttonsHTML;
+
+        // 뒤로 가기 버튼에 이벤트 리스너 추가
+        document.getElementById("backButton").addEventListener("click", () => {
+          unitSelectionContainer.style.display = 'none';
+          unitCreateBtn.style.display = 'block';
         });
-        friendlyUnits.push(unit);
+
+        // 유닛 선택 버튼들에 이벤트 리스너 추가
+        document.querySelectorAll(".unit-select").forEach(button => {
+          button.addEventListener("click", (e) => {
+            const unitNumber = e.target.getAttribute("data-unit");
+            console.log(`유닛 ${unitNumber} 선택됨`);
+            const unit = new Unit({
+              x: 400,
+              y: 350,
+              health: 100,
+              attPower: 20,
+              range: 50,
+            });
+            friendlyUnits.push(unit);
+          });
+        });
       } else {
         console.log("최대 유닛 수(5개)에 도달했습니다!");
       }
