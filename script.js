@@ -13,10 +13,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const leftSection = document.querySelector(".map-section.left");
   const rightSection = document.querySelector(".map-section.right");
   const coin = document.querySelector(".coin_box");
+  const coin_count = document.getElementById("coin");
 
   // 상태 변수
   let isMouseInLeft = false;
   let isMouseInRight = false;
+  let currentCoin = parseInt(coin_count.textContent, 10);  // 시작할 때 코인 값
   const friendlyUnits = [];
   const enemyUnits = [];
   const MAX_FRIENDLY_UNITS = 100; // 최대 유닛 수 제한
@@ -80,9 +82,13 @@ document.addEventListener("DOMContentLoaded", () => {
     setInterval(scrollContent, 6);
   }
 
+  function updateCoinDisplay() {
+    coin_count.textContent = currentCoin.toString();  // 코인 값 업데이트
+  }
+
   // 유닛 클래스 정의
   class Unit {
-    constructor({ x, y, isEnemy = false, health, attPower, range }) {
+    constructor({ x, y, isEnemy = false, health, attPower, range}) {
       this.element = document.createElement("div");
       this.element.style.position = "absolute";
       this.element.style.width = "200px";
@@ -122,6 +128,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (target.health <= 0) {
         target.remove();
         this.isFighting = false;
+        if(target.isEnemy) { // 적이 죽으면 코인 1 증가
+          currentCoin += 1;
+          updateCoinDisplay();
+        }
       }
     }
 
