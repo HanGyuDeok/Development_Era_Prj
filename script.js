@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const leftSection = document.querySelector(".map-section.left");
   const rightSection = document.querySelector(".map-section.right");
   const coin = document.querySelector(".coin_box");
-  const coin_count = document.getElementById("coin");
+  let coin_count = document.getElementById("coin");
 
   // 상태 변수
   let isMouseInLeft = false;
@@ -88,14 +88,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 유닛 클래스 정의
   class Unit {
-    constructor({ x, y, isEnemy = false, health, attPower, range}) {
+    constructor({x, y, isEnemy = false, health, attPower, range}) {
       this.element = document.createElement("div");
       this.element.style.position = "absolute";
       this.element.style.width = "200px";
       this.element.style.height = "200px";
       this.element.style.backgroundImage = isEnemy
-          ? "url('img/enemy-unit.png')"
-          : "url('img/friendly-unit.png')";
+        ? "url('img/enemy-unit.png')"
+        : "url('img/friendly-unit.png')";
       this.element.style.backgroundSize = "cover";
       this.element.style.left = `${x}px`;
       this.element.style.top = `${y}px`;
@@ -128,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (target.health <= 0) {
         target.remove();
         this.isFighting = false;
-        if(target.isEnemy) { // 적이 죽으면 코인 1 증가
+        if (target.isEnemy) { // 적이 죽으면 코인 1 증가
           currentCoin += 1;
           updateCoinDisplay();
         }
@@ -149,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function createUnitSelectionScreen() {
     let buttonsHTML = '';
     for (let i = 1; i <= 5; i++) {
-      buttonsHTML += `<button class="unit-select" data-unit="${i}">유닛 ${i}</button>`;
+      buttonsHTML += `<button class="unit-select" data-unit="${i}">유닛 ${i}/ 골드 : ${i}</button>`;
     }
     buttonsHTML += '<button id="backButton">뒤로 가기</button>';
     unitSelectionContainer.innerHTML = buttonsHTML;
@@ -163,18 +163,69 @@ document.addEventListener("DOMContentLoaded", () => {
     // 유닛 선택 버튼들에 이벤트 리스너 추가
     document.querySelectorAll(".unit-select").forEach(button => {
       button.addEventListener("click", (e) => {
-        const unitNumber = e.target.getAttribute("data-unit");
+        const unitNumber = parseInt(e.target.getAttribute("data-unit"), 10)
         console.log(`유닛 ${unitNumber} 선택됨`);
         if (friendlyUnits.length < MAX_FRIENDLY_UNITS) {
-          const unit = new Unit({
-            x: 400,
-            y: 350,
-            health: 100,
-            attPower: 20,
-            range: 50,
-          });
-          friendlyUnits.push(unit);
-          unit.element.classList.add(`unit${unitNumber}-moving`);
+          if (currentCoin >= unitNumber) { // 코인이 충분한 경우에만 유닛 생성
+            currentCoin -= unitNumber; // 코인 차감
+            updateCoinDisplay(); // UI 업데이트
+
+            let unit;
+            switch (unitNumber) {
+              case 1:
+                unit = new Unit({
+                  x: 400,
+                  y: 350,
+                  health: 100,
+                  attPower: 20,
+                  range: 50,
+                });
+                break;
+              case 2:
+                unit = new Unit({
+                  x: 400,
+                  y: 350,
+                  health: 150,
+                  attPower: 25,
+                  range: 55,
+                });
+                break;
+              case 3:
+                unit = new Unit({
+                  x: 400,
+                  y: 350,
+                  health: 200,
+                  attPower: 30,
+                  range: 60,
+                });
+                break;
+              case 4:
+                unit = new Unit({
+                  x: 400,
+                  y: 350,
+                  health: 250,
+                  attPower: 35,
+                  range: 65,
+                });
+                break;
+              case 5:
+                unit = new Unit({
+                  x: 400,
+                  y: 350,
+                  health: 300,
+                  attPower: 40,
+                  range: 70,
+                });
+                break;
+              default:
+                console.log("잘못된 유닛 번호");
+                return;
+            }
+            friendlyUnits.push(unit);
+            unit.element.classList.add(`unit${unitNumber}-moving`);
+          } else {
+            console.log("코인이 부족합니다!");
+          }
         } else {
           console.log("최대 유닛 수(5개)에 도달했습니다!");
         }
@@ -230,7 +281,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (index > 0) { // 첫 번째 유닛은 앞에 유닛이 없으므로 건너뜁니다.
         const distance = Math.abs(friendlyUnits[index].x - friendlyUnits[index - 1].x); // 앞과 뒤 유닛 거리 계산
 
-        if (distance < unitSpacing) { // 앞 유닛과 뒷 유닛의 거리가 unitSpacing보다 적으면
+        if (distance < unitSpacing) { // 앞 유닛과 뒷 유닛의 거리가 unitSpacing 보다 적으면
           friendlyUnits[index].speed = 0; // 뒤 유닛 정지
           console.log(`유닛 ${index}가 유닛 ${index - 1}과 너무 가까워서 정지합니다.`);
         } else {
@@ -246,10 +297,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return newX;
   }
 
-
-
-
-
   // 게임 루프
   function gameLoop() {
     friendlyUnits.forEach((unit) => unit.update());
@@ -258,6 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
     checkCollisions();
     requestAnimationFrame(gameLoop);
   }
+
   gameLoop();
 });
 
