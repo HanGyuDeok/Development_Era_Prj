@@ -29,7 +29,7 @@ body {
     position: absolute;
     width: 90%;
     height: 70%;
-    top: 17%;
+    top: 14%;
     left: 4.5%;
     border: solid black 6px;
     border-radius: 2%;
@@ -102,11 +102,11 @@ body {
 }
 
 #unitCreate {
-    position: sticky;
-    top: 2%;
-    left: 83%;
+    position: absolute;
+    top: -10%;
+    left: 5%;
     width: 120px;
-    height: 100px;
+    height: 80px;
     font-size: 15px;
     border-radius: 15px;
     color: white;
@@ -117,7 +117,7 @@ body {
 .left {
     position: absolute;
     width: 20%;
-    height: 70%;
+    height: 60%;
     top: 20.7%;
     left: 4.5%;
     transition: all 0.5s linear;
@@ -126,7 +126,7 @@ body {
 .center {
     position: absolute;
     width: 40%;
-    height: 70%;
+    height: 60%;
     top: 20.7%;
     left: 30%;
     transition: all 0.5s linear;
@@ -135,7 +135,7 @@ body {
 .right {
     position: absolute;
     width: 20%;
-    height: 70%;
+    height: 60%;
     top: 20.7%;
     left: 75.7%;
     transition: all 0.5s linear;
@@ -220,6 +220,212 @@ p {
     transition: left 0.1s linear;
 }
 
+@keyframes unit1-moving {
+    0% {
+        background-image: url('./ani/unit1_ani/unit1-1.png');
+    }
+    20% {
+        background-image: url('./ani/unit1_ani/unit1-2.png');
+    }
+    40% {
+        background-image: url('./ani/unit1_ani/unit1-3.png');
+    }
+    60% {
+        background-image: url('./ani/unit1_ani/unit1-4.png');
+    }
+    80% {
+        background-image: url('./ani/unit1_ani/unit1-5.png');
+    }
+    100% {
+        background-image: url('./ani/unit1_ani/unit1-1.png');
+    }
+}
+
+/* unit1 의 움직임 구현 */
+.unit1-moving {
+    animation: unit1-moving 0.5s steps(5) infinite;
+    background-size: contain; /* 배경 크기를 자동 조정 */
+    background-repeat: no-repeat; /* 이미지 반복 방지 */
+    will-change: background-image; /* 애니메이션 성능 최적화 */
+    image-rendering: pixelated;
+    animation-timing-function: step-start;
+}
+
+@keyframes unit1-attack {
+    0% {
+        background-image: url('./ani/unit1_ani/unit1_attack_1.png');
+    }
+    16.67% {
+        background-image: url('./ani/unit1_ani/unit1_attack_2.png');
+    }
+    33.33% {
+        background-image: url('./ani/unit1_ani/unit1_attack_3.png');
+    }
+    50% {
+        background-image: url('./ani/unit1_ani/unit1_attack_4.png');
+    }
+    66.67% {
+        background-image: url('./ani/unit1_ani/unit1_attack_5.png');
+    }
+    83.33% {
+        background-image: url('./ani/unit1_ani/unit1_attack_6.png');
+    }
+    100% {
+        background-image: url('./ani/unit1_ani/unit1_attack_1.png');
+    }
+}
+
+.unit1-attack {
+    animation: unit1-attack 0.5s steps(6, start) infinite;
+    background-size: contain;
+    background-repeat: no-repeat;
+    will-change: background-image;
+    image-rendering: pixelated;
+    animation-timing-function: step-start;
+}
+
+
+@keyframes unit2-moving {
+    0% {
+        background-image: url('./ani/unit2_ani/unit2-1.png');
+    }
+    20% {
+        background-image: url('./ani/unit2_ani/unit2-2.png');
+    }
+    40% {
+        background-image: url('./ani/unit2_ani/unit2-3.png');
+    }
+    60% {
+        background-image: url('./ani/unit2_ani/unit2-4.png');
+    }
+    80% {
+        background-image: url('./ani/unit2_ani/unit2-5.png');
+    }
+    100% {
+        background-image: url('./ani/unit2_ani/unit2-6.png');
+    }
+}
+
+/* unit2 의 움직임 구현 */
+.unit2-moving {
+    animation: unit2-moving 1s steps(6) infinite;
+    background-size: contain;
+    background-repeat: no-repeat;
+    will-change: background-image;
+    image-rendering: pixelated;
+    animation-timing-function: step-start;
+}
+
+@keyframes unit3-moving {
+    0% {
+        background-image: url('./ani/unit3_ani/unit3-1.png');
+    }
+    14.28% {
+        background-image: url('./ani/unit3_ani/unit3-2.png');
+    }
+    28.57% {
+        background-image: url('./ani/unit3_ani/unit3-3.png');
+    }
+    42.85% {
+        background-image: url('./ani/unit3_ani/unit3-4.png');
+    }
+    57.14% {
+        background-image: url('./ani/unit3_ani/unit3-5.png');
+    }
+    71.42% {
+        background-image: url('./ani/unit3_ani/unit3-6.png');
+    }
+    85.71% {
+        background-image: url('./ani/unit3_ani/unit3-7.png');
+    }
+    100% {
+        background-image: url('./ani/unit3_ani/unit3-1.png');
+    }
+}
+
+.unit3-moving {
+    animation: unit3-moving 0.7s steps(7, end) infinite;
+    background-size: contain;
+    background-repeat: no-repeat;
+    will-change: background-image;
+    image-rendering: pixelated; /* 잔상 방지 */
+    animation-timing-function: step-start;
+}
+
+@keyframes unit4-moving {
+    0% {
+        background-image: url('./ani/unit4-ani/unit4-1.png');
+    }
+    10% {
+        background-image: url('./ani/unit4-ani/unit4-2.png');
+    }
+    20% {
+        background-image: url('./ani/unit4-ani/unit4-3.png');
+    }
+    30% {
+        background-image: url('./ani/unit4-ani/unit4-4.png');
+    }
+    40% {
+        background-image: url('./ani/unit4-ani/unit4-5.png');
+    }
+    50% {
+        background-image: url('./ani/unit4-ani/unit4-6.png');
+    }
+    60% {
+        background-image: url('./ani/unit4-ani/unit4-7.png');
+    }
+    70% {
+        background-image: url('./ani/unit4-ani/unit4-8.png');
+    }
+    80% {
+        background-image: url('./ani/unit4-ani/unit4-9.png');
+    }
+    90% {
+        background-image: url('./ani/unit4-ani/unit4-10.png');
+    }
+    100% {
+        background-image: url('./ani/unit4-ani/unit4-1.png');
+    }
+}
+
+.unit4-moving {
+    animation: unit4-moving 1s steps(10, end) infinite;
+    background-size: contain;
+    background-repeat: no-repeat;
+    will-change: background-image;
+    image-rendering: pixelated; /* 잔상 방지 */
+    animation-timing-function: step-start; /* 전환 시 잔상 없애기 */
+}
+
+@keyframes unit5-moving {
+    0% {
+        background-image: url('./ani/unit5-ani/unit5-1.png');
+    }
+    12.5% {
+        background-image: url('./ani/unit5-ani/unit5-2.png');
+    }
+    25% {
+        background-image: url('./ani/unit5-ani/unit5-3.png');
+    }
+    37.5% {
+        background-image: url('./ani/unit5-ani/unit5-4.png');
+    }
+    50% {
+        background-image: url('./ani/unit5-ani/unit5-5.png');
+    }
+    62.5% {
+        background-image: url('./ani/unit5-ani/unit5-6.png');
+    }
+    75% {
+        background-image: url('./ani/unit5-ani/unit5-7.png');
+    }
+    87.5% {
+        background-image: url('./ani/unit5-ani/unit5-8.png');
+    }
+    100% {
+        background-image: url('./ani/unit5-ani/unit5-1.png');
+    }
+
 #unitSelectionContainer {
     position: absolute;
     top: 2%;
@@ -227,8 +433,21 @@ p {
     display: flex;
     flex-direction: row;
     gap: 10px;
+
 }
 
+.unit-creation {
+    position: absolute;
+    width: 100%;
+    height: 100px;
+    top: 88%;
+}
+
+.unitCreate{
+    width: 150px;
+    height: 100px;
+}
+  
 .unit-select, #backButton {
     width: 120px;
     height: 50px;
@@ -238,23 +457,5 @@ p {
     background-color: rgba(0, 0, 0, 1);
     border: none;
     cursor: pointer;
-}
-#unitSelectionContainer {
-    position: absolute;
-    top: 2%;
-    left: 83%;
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-}
-
-.unit-select, #backButton {
-    width: 120px;
-    height: 50px;
-    font-size: 15px;
-    border-radius: 15px;
-    color: white;
-    background-color: rgba(0, 0, 0, 1);
-    border: none;
-    cursor: pointer;
+    margin-right: 20px;
 }
