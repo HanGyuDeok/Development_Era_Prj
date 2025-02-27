@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 유닛 클래스 정의
   class Unit {
-    constructor({x, isEnemy = false, health, attPower, range}) {
+    constructor({x, isEnemy = false, health, attPower, range , unitNum}) {
       this.element = document.createElement("div");
       this.element.style.position = "absolute";
       this.element.style.width = "200px";
@@ -111,15 +111,18 @@ document.addEventListener("DOMContentLoaded", () => {
       this.range = range || 50;
       this.isEnemy = isEnemy;
       this.isFighting = false;
+      this.element.classList.add(`unit${unitNum}-moving`);
     }
 
     update() {
-      if (!this.isFighting) {
+      if (!this.isFighting && this.speed !== 0) {
         this.x += this.speed;
         this.element.style.left = `${this.x}px`;
+        this.element.style.animationPlayState = 'running'; // 움직일 때 애니메이션 재생
+      } else if(!this.isFighting) {
+        this.element.style.animationPlayState = 'paused'; // 멈췄을 때 애니메이션 정지
       }
     }
-
     distanceTo(target) {
       return Math.abs(this.x - target.x);
     }
@@ -245,23 +248,22 @@ document.addEventListener("DOMContentLoaded", () => {
           let unit;
           switch (unitNumber) {
             case 1:
-              unit = new Unit({x: 450, health: 100, attPower: 20, range: 100});
+              unit = new Unit({x: 450, health: 100, attPower: 20, range: 100 ,unitNum:1});
               break;
             case 2:
-              unit = new Unit({x: 450, health: 200, attPower: 25, range: 100});
+              unit = new Unit({x: 450, health: 200, attPower: 25, range: 100 ,unitNum:2});
               break;
             case 3:
-              unit = new Unit({x: 450, health: 300, attPower: 30, range: 100});
+              unit = new Unit({x: 450, health: 300, attPower: 30, range: 100 ,unitNum:3});
               break;
             case 4:
-              unit = new Unit({x: 450, health: 400, attPower: 35, range: 100});
+              unit = new Unit({x: 450, health: 400, attPower: 35, range: 100 ,unitNum:4});
               break;
             case 5:
-              unit = new Unit({x: 450, health: 500, attPower: 10, range: 500});
+              unit = new Unit({x: 450, health: 500, attPower: 10, range: 500 ,unitNum:5});
               break;
           }
           friendlyUnits.push(unit);
-          unit.element.classList.add(`unit${unitNumber}-moving`);
         } else if (friendlyUnits.length >= MAX_FRIENDLY_UNITS) {
           console.log("최대 유닛 수(100개)에 도달했습니다!");
         } else {
@@ -325,6 +327,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (distance <= enemyRange && distance > friendlyRange) {
           // 적군 사거리에만 포함되면 아군이 일방적으로 공격당함
           enemy.attack(friendly);
+          enemy.element.classList.remove('unit1-attack');
+          enemy.element.classList.add('unit1-attack');
         } else if (distance <= friendlyRange && distance > enemyRange) {
           // 아군 사거리에만 포함되면 아군이 일방적으로 공격
           friendly.attack(enemy);
@@ -332,6 +336,8 @@ document.addEventListener("DOMContentLoaded", () => {
           // 양쪽 사거리에 모두 포함되면 서로 공격
           friendly.attack(enemy);
           enemy.attack(friendly);
+          enemy.element.classList.remove('unit1-attack');
+          enemy.element.classList.add('unit1-attack'); // 적군 공격 모션만 추가
         }
       });
     });
