@@ -1,53 +1,50 @@
 <!DOCTYPE html>
-<html lang = "en">
+<html lang="en">
 <head>
-  <meta charset = "UTF-8">
+  <meta charset="UTF-8">
   <title>개발 시대 디펜스</title>
-  <link rel = "stylesheet" type = "text/css" href = "app.css">
-  <script defer type = "text/javascript" src = "script.js"></script>
-  <script src = "https://kit.fontawesome.com/977d8943b2.js" crossorigin = "anonymous"></script>
+  <link rel="stylesheet" type="text/css" href="app.css">
+  <script defer type="text/javascript" src="script.js"></script>
+  <script src="https://kit.fontawesome.com/977d8943b2.js" crossorigin="anonymous"></script>
 </head>
 <body>
-<div class = "contain">
+<div class="contain">
   <p>개발 시대 디펜스 게임 입니다!</p>
-  <div class = "option">
-    <button id = "audio_btn"><i class = "fa-solid fa-volume-xmark" style = "color: #f6f6f6">
-      <audio id = "audio" src = "audio/background_sound.mp3"></audio>
+  <div class="option">
+    <button id="audio_btn"><i class="fa-solid fa-volume-xmark" style="color: #f6f6f6">
+      <audio id="audio" src="audio/background_sound.mp3"></audio>
     </i></button>
   </div>
-  <div class = "select-choices">
-    <div class = "unit-creation">
-      <button id = "unitCreate">유닛 생성</button>
-      <div id = "unitSelectionContainer"></div>
+  <div class="select-choices">
+    <div class="unit-creation">
+      <button id="unitCreate">유닛 생성</button>
+      <div id="unitSelectionContainer"></div>
     </div>
-    <div class = "tower-upgrade">
-      <button id = "towerUpgrade">타워 업그레이드</button>
-      <div id = "towerUpgradeSelectionContainer"></div>
+    <div class="tower-upgrade">
+      <button id="towerUpgrade">타워 업그레이드</button>
+      <div id="towerUpgradeSelectionContainer"></div>
     </div>
   </div>
-  <div class = "map">
-    <div class = "start">
-      <button id = "start">START</button>
+  <div class="map">
+    <div class="start">
+      <button id="start">START</button>
     </div>
-    <div class = "stage" style = "display: none;">
-      <button id = "easy">EASY</button>
-      <button id = "normal">NORMAL</button>
-      <button id = "hard">HARD</button>
+    <div class="stage" style="display: none;">
+      <button id="easy">EASY</button>
+      <button id="normal">NORMAL</button>
+      <button id="hard">HARD</button>
     </div>
-    <div class = "coin_box" style = "display: none;">
-      <div id = "coin">10</div>
+    <div class="coin_box" style="display: none;">
+      <div id="coin">10</div>
     </div>
-    <div class = "content">
+    <div class="content">
       <div id="friendly-base-tower" data-type="ally"></div>
       <div id="enemy-base-tower" data-type="enemy"></div>
     </div>
   </div>
-  <div class = "map-section left">
-  </div>
-  <div class = "map-section center">
-  </div>
-  <div class = "map-section right">
-  </div>
+  <div class="map-section left"></div>
+  <div class="map-section center"></div>
+  <div class="map-section right"></div>
 </div>
 </body>
 </html>

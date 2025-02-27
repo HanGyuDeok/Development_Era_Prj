@@ -164,7 +164,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   class Tower {
     constructor(isFriendly, health, attackPower, range) {
-      this.screenElem = document.querySelector(isFriendly ? '.friendly-base-tower' : '.enemy-base-tower');
+      // ID로 선택하도록 수정
+      this.screenElem = document.getElementById(isFriendly ? 'friendly-base-tower' : 'enemy-base-tower');
       this.isFriendly = isFriendly;
       this.atktype = 'tower';
       this.health = health;
@@ -172,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
       this.range = range;
       this.x = isFriendly ? 520 : 3820;
       this.name = isFriendly ? '아군 타워' : '적군 타워';
-      this.level = 1; // 타워 레벨 추가
+      this.level = 1;
     }
 
     attack(target) {
@@ -200,12 +201,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     upgrade() {
       this.level += 1;
-      this.health += 1000; // 체력 증가
-      this.attackPower += 10; // 공격력 증가
-      this.range += 10; // 사거리 증가
+      this.health += 1000;
+      this.attackPower += 10;
+      this.range += 10;
       if (this.screenElem) {
         this.screenElem.style.backgroundImage = "url('img/upgraded-tower.png')";
         this.screenElem.style.zIndex = "10";
+      } else {
+        console.error("타워 요소를 찾을 수 없습니다!");
       }
       console.log(`${this.name}가 레벨 ${this.level}로 업그레이드되었습니다!`);
     }
