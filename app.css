@@ -158,7 +158,7 @@ p {
     position: sticky;
     width: 120px;
     height: 50px;
-    top: 5%;
+    top: 10%;
     left: 3%;
     background-color: white;
     font-size: 30px;
@@ -203,8 +203,46 @@ p {
     filter: grayscale(1) brightness(80%);
 }
 
-.unit div {
-    transition: left 0.1s linear;
+#friendly_base_bar {
+    position: absolute;
+    width: 250px;
+    height: 15px;
+    top: 29%;
+    left: 5%;
+    background-color: #555; /* 바탕이 될 색 */
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#friendly_base_bar .friendly_base_health {
+    height: 100%;
+    width: 90%; /* 체력 수치에 따라 이 값을 조정 */
+    background:
+            linear-gradient(to bottom, rgba(255, 255, 255, 0.3), transparent), /* 광택 효과 */
+            linear-gradient(to right, #ff3019 0%, #e73827 50%, #ff3019 100%); /* 색상 그라디언트 */
+    box-shadow: inset 0 0 5px #000; /* 내부 그림자 효과 */
+    border-radius: 5px;
+}
+
+#enemy_base_bar {
+    position: absolute;
+    width: 250px;
+    height: 15px;
+    top: 29%;
+    left: 90%;
+    background-color: #555; /* 바탕이 될 색 */
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#enemy_base_bar .enemy_base_health {
+    height: 100%;
+    width: 70%; /* 체력 수치에 따라 이 값을 조정 */
+    background:
+            linear-gradient(to bottom, rgba(255, 255, 255, 0.3), transparent), /* 광택 효과 */
+            linear-gradient(to right, #ff3019 0%, #e73827 50%, #ff3019 100%); /* 색상 그라디언트 */
+    box-shadow: inset 0 0 5px #000; /* 내부 그림자 효과 */
+    border-radius: 5px;
 }
 
 @keyframes unit1-moving {
