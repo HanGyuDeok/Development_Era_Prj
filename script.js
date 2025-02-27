@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const unitSelectionContainer = document.getElementById("unitSelectionContainer");
   const leftSection = document.querySelector(".map-section.left");
   const rightSection = document.querySelector(".map-section.right");
+  const coin = document.querySelector(".coin_box");
 
   // 상태 변수
   let isMouseInLeft = false;
@@ -49,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
       content.style.display = "block";
       map.style.display = "block";
       unitCreateBtn.style.display = "block";
+      coin.style.display = "block";
     });
   }
 
@@ -101,7 +103,6 @@ document.addEventListener("DOMContentLoaded", () => {
       this.range = range || 50; // 기본 사거리 50
       this.isEnemy = isEnemy;
       this.isFighting = false;
-      this.element.classList.add("unit1-moving"); // 움직임 구현
       this.isMoving = false;
     }
 
