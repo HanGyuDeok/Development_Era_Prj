@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
           : "url('img/friendly-unit.png')";
       this.element.style.backgroundSize = "cover";
       this.element.style.left = `${x}px`;
-      this.element.style.bottom = `5px`;
+      this.element.style.bottom = `40px`;
       content.appendChild(this.element);
       this.atktype = 'unit';
       this.x = x;
@@ -155,6 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const index = array.indexOf(this);
       if (index > -1) {
         array.splice(index, 1);
+        // 첫 번째 유닛이 제거된 경우, 다음 유닛이 있다면 속도 복구
         if (!this.isEnemy && index === 0 && array.length > 0) {
           array[0].speed = GAME_SPEED;
         }
@@ -240,24 +241,23 @@ document.addEventListener("DOMContentLoaded", () => {
           updateCoinDisplay();
 
           const lastUnitX = friendlyUnits.length > 0 ? friendlyUnits[friendlyUnits.length - 1].x : 400;
-          const newX = lastUnitX - 250;
 
           let unit;
           switch (unitNumber) {
             case 1:
-              unit = new Unit({x: newX, health: 100, attPower: 20, range: 50});
+              unit = new Unit({x: 450, health: 100, attPower: 20, range: 100});
               break;
             case 2:
-              unit = new Unit({x: newX, health: 200, attPower: 25, range: 55});
+              unit = new Unit({x: 450, health: 200, attPower: 25, range: 100});
               break;
             case 3:
-              unit = new Unit({x: newX, health: 300, attPower: 30, range: 60});
+              unit = new Unit({x: 450, health: 300, attPower: 30, range: 100});
               break;
             case 4:
-              unit = new Unit({x: newX, health: 400, attPower: 35, range: 65});
+              unit = new Unit({x: 450, health: 400, attPower: 35, range: 100});
               break;
             case 5:
-              unit = new Unit({x: newX, health: 500, attPower: 40, range: 70});
+              unit = new Unit({x: 450, health: 500, attPower: 10, range: 500});
               break;
           }
           friendlyUnits.push(unit);
@@ -307,7 +307,7 @@ document.addEventListener("DOMContentLoaded", () => {
         isEnemy: true,
         health: 100,
         attPower: 10,
-        range: 50,
+        range: 100,
       });
       enemyUnits.push(enemy);
     }
@@ -315,24 +315,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 충돌 감지
   function checkCollisions() {
+    // 아군 유닛과 적군 유닛 간의 상호작용
     friendlyUnits.forEach(friendly => {
       enemyUnits.forEach(enemy => {
-        if (friendly.distanceTo(enemy) <= Math.max(friendly.range, enemy.range)) {
+        const distance = friendly.distanceTo(enemy);
+        const friendlyRange = friendly.range;
+        const enemyRange = enemy.range;
+
+        if (distance <= enemyRange && distance > friendlyRange) {
+          // 적군 사거리에만 포함되면 아군이 일방적으로 공격당함
+          enemy.attack(friendly);
+        } else if (distance <= friendlyRange && distance > enemyRange) {
+          // 아군 사거리에만 포함되면 아군이 일방적으로 공격
+          friendly.attack(enemy);
+        } else if (distance <= friendlyRange && distance <= enemyRange) {
+          // 양쪽 사거리에 모두 포함되면 서로 공격
           friendly.attack(enemy);
           enemy.attack(friendly);
         }
       });
-
-      if (friendly.distanceTo(enemyTower) <= Math.max(friendly.range, enemyTower.range)) {
-        friendly.attack(enemyTower);
-        enemyTower.attack(friendly);
-      }
     });
 
+    // 적군 유닛과 아군 타워 간의 상호작용
     enemyUnits.forEach(enemy => {
-      if (enemy.distanceTo(friendlyTower) <= Math.max(enemy.range, friendlyTower.range)) {
+      const distanceToTower = enemy.distanceTo(friendlyTower);
+      const enemyRange = enemy.range;
+      const towerRange = friendlyTower.range;
+
+      if (distanceToTower <= enemyRange && distanceToTower > towerRange) {
+        // 적군 사거리에만 포함되면 타워가 일방적으로 공격당함
+        enemy.attack(friendlyTower);
+        console.log("아군 타워 체력: " + friendlyTower.health);
+        console.log("적군체력: " + enemy.health);
+      } else if (distanceToTower <= towerRange && distanceToTower > enemyRange) {
+        // 타워 사거리에만 포함되면 타워가 일방적으로 공격
+        friendlyTower.attack(enemy);
+        console.log("아군 타워 체력: " + friendlyTower.health);
+        console.log("적군체력: " + enemy.health);
+      } else if (distanceToTower <= towerRange && distanceToTower <= enemyRange) {
+        // 양쪽 사거리에 모두 포함되면 서로 공격
         enemy.attack(friendlyTower);
         friendlyTower.attack(enemy);
+        console.log("아군 타워 체력: " + friendlyTower.health);
+        console.log("적군체력: " + enemy.health);
       }
     });
   }
@@ -341,13 +366,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function dontOverlap() {
     for (let i = 1; i < friendlyUnits.length; i++) {
-      const distance = friendlyUnits[i-1].x - friendlyUnits[i].x;
+      const distance = friendlyUnits[i - 1].x - friendlyUnits[i].x;
       if (distance < unitSpacing) {
         friendlyUnits[i].speed = 0;
       } else if (friendlyUnits[i].speed === 0) {
         friendlyUnits[i].speed = GAME_SPEED;
       }
     }
+    // 첫 번째 유닛이 항상 움직이도록 보장 (유닛이 있을 경우)
     if (friendlyUnits.length > 0 && !friendlyUnits[0].isFighting) {
       friendlyUnits[0].speed = GAME_SPEED;
     }
