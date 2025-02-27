@@ -14,16 +14,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const leftSection = document.querySelector(".map-section.left");
   const rightSection = document.querySelector(".map-section.right");
   const coin = document.querySelector(".coin_box");
-  const coin_count = document.getElementById("coin");
+  let coin_count = document.getElementById("coin");
 
   // 상태 변수
+  const GAME_SPEED = 2;
   let isMouseInLeft = false;
   let isMouseInRight = false;
-  let currentCoin = parseInt(coin_count.textContent, 10);  // 시작할 때 코인 값
+  let currentCoin = parseInt(coin_count.textContent, 10);
   const friendlyUnits = [];
   const enemyUnits = [];
-  const MAX_FRIENDLY_UNITS = 100; // 최대 유닛 수 제한
-  let tower = document.getElementById("friendly-base-tower"); // 타워 초기화
+  const MAX_FRIENDLY_UNITS = 100;
 
   // 오디오 버튼 이벤트
   if (audioBtn && audio && icon) {
@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
       content.style.display = "block";
       map.style.display = "block";
       unitCreateBtn.style.display = "block";
-      towerUpgradeBtn.style.display = "block"; // 게임 시작 시 타워 업그레이드 버튼 보이도록
+      towerUpgradeBtn.style.display = "block";
       coin.style.display = "block";
     });
   }
@@ -86,12 +86,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateCoinDisplay() {
-    coin_count.textContent = currentCoin.toString();  // 코인 값 업데이트
+    coin_count.textContent = currentCoin.toString();
   }
 
   // 유닛 클래스 정의
   class Unit {
-    constructor({ x, y, isEnemy = false, health, attPower, range }) {
+    constructor({x, isEnemy = false, health, attPower, range}) {
       this.element = document.createElement("div");
       this.element.style.position = "absolute";
       this.element.style.width = "200px";
@@ -101,18 +101,16 @@ document.addEventListener("DOMContentLoaded", () => {
           : "url('img/friendly-unit.png')";
       this.element.style.backgroundSize = "cover";
       this.element.style.left = `${x}px`;
-      this.element.style.top = `${y}px`;
+      this.element.style.bottom = `5px`;
       content.appendChild(this.element);
-
+      this.atktype = 'unit';
       this.x = x;
-      this.y = y;
-      this.speed = isEnemy ? -2 : 2;
+      this.speed = isEnemy ? -GAME_SPEED : GAME_SPEED;
       this.health = health;
       this.attackPower = attPower;
-      this.range = range || 50; // 기본 사거리 50
+      this.range = range || 50;
       this.isEnemy = isEnemy;
       this.isFighting = false;
-      this.isMoving = false;
     }
 
     update() {
@@ -120,79 +118,181 @@ document.addEventListener("DOMContentLoaded", () => {
         this.x += this.speed;
         this.element.style.left = `${this.x}px`;
       }
-      if (this.x < -50 || this.x > 4050) {
-        this.remove();
-      }
+    }
+
+    distanceTo(target) {
+      return Math.abs(this.x - target.x);
     }
 
     attack(target) {
+      if (this.isFighting) return;
+
       this.isFighting = true;
-      target.health -= this.attackPower;
-      if (target.health <= 0) {
-        target.remove();
-        this.isFighting = false;
-        if (target.isEnemy) { // 적이 죽으면 코인 1 증가
-          currentCoin += 1;
-          updateCoinDisplay();
+      if (target.atktype === 'unit') {
+        target.health -= this.attackPower;
+        if (target.health <= 0) {
+          target.remove();
+          if (target.isEnemy) {
+            currentCoin += 1;
+            updateCoinDisplay();
+          }
+        }
+      } else if (target.atktype === 'tower') {
+        if (this.distanceTo(target) <= this.range) {
+          target.takeDamage(this.attackPower);
         }
       }
+      setTimeout(() => {
+        this.isFighting = false;
+      }, 1000);
     }
 
     remove() {
       if (this.element.parentNode) {
-        content.removeChild(this.element);
+        this.element.parentNode.removeChild(this.element);
       }
       const array = this.isEnemy ? enemyUnits : friendlyUnits;
       const index = array.indexOf(this);
-      if (index > -1) array.splice(index, 1);
+      if (index > -1) {
+        array.splice(index, 1);
+        if (!this.isEnemy && index === 0 && array.length > 0) {
+          array[0].speed = GAME_SPEED;
+        }
+      }
     }
   }
+
+  class Tower {
+    constructor(isFriendly, health, attackPower, range) {
+      this.screenElem = document.querySelector(isFriendly ? '.friendly-base-tower' : '.enemy-base-tower');
+      this.isFriendly = isFriendly;
+      this.atktype = 'tower';
+      this.health = health;
+      this.attackPower = attackPower;
+      this.range = range;
+      this.x = isFriendly ? 520 : 3820;
+      this.name = isFriendly ? '아군 타워' : '적군 타워';
+      this.level = 1; // 타워 레벨 추가
+    }
+
+    attack(target) {
+      if (target.atktype === 'unit') {
+        target.health -= this.attackPower;
+        if (target.health <= 0) {
+          target.remove();
+        }
+      }
+    }
+
+    takeDamage(damage) {
+      this.health -= damage;
+      if (this.health <= 0) {
+        this.destroy();
+      }
+    }
+
+    destroy() {
+      if (this.screenElem && this.screenElem.parentNode) {
+        this.screenElem.parentNode.removeChild(this.screenElem);
+        alert(`${this.name}가 파괴되었습니다.`);
+      }
+    }
+
+    upgrade() {
+      this.level += 1;
+      this.health += 1000; // 체력 증가
+      this.attackPower += 10; // 공격력 증가
+      this.range += 10; // 사거리 증가
+      if (this.screenElem) {
+        this.screenElem.style.backgroundImage = "url('img/upgraded-tower.png')";
+        this.screenElem.style.zIndex = "10";
+      }
+      console.log(`${this.name}가 레벨 ${this.level}로 업그레이드되었습니다!`);
+    }
+  }
+
+  const friendlyTower = new Tower(true, 5000, 30, 50);
+  const enemyTower = new Tower(false, 5000, 30, 50);
 
   // 유닛 선택 화면 생성 함수
   function createUnitSelectionScreen() {
     let buttonsHTML = '';
     for (let i = 1; i <= 5; i++) {
-      buttonsHTML += `<button class="unit-select" data-unit="${i}">유닛 ${i}</button>`;
+      buttonsHTML += `<button class="unit-select" data-unit="${i}">유닛 ${i}/ 골드 : ${i}</button>`;
     }
     buttonsHTML += '<button id="backButton">뒤로 가기</button>';
     unitSelectionContainer.innerHTML = buttonsHTML;
 
-    // 뒤로 가기 버튼에 이벤트 리스너 추가
     document.getElementById("backButton").addEventListener("click", () => {
       unitSelectionContainer.style.display = 'none';
       unitCreateBtn.style.display = 'block';
       towerUpgradeBtn.style.display = 'block';
     });
 
-    // 유닛 선택 버튼들에 이벤트 리스너 추가
     document.querySelectorAll(".unit-select").forEach(button => {
       button.addEventListener("click", (e) => {
-        const unitNumber = e.target.getAttribute("data-unit");
-        console.log(`유닛 ${unitNumber} 선택됨`);
-        if (friendlyUnits.length < MAX_FRIENDLY_UNITS) {
-          const unit = new Unit({
-            x: 400,
-            y: 350,
-            health: 100,
-            attPower: 20,
-            range: 50,
-          });
+        const unitNumber = parseInt(e.target.getAttribute("data-unit"), 10);
+        if (friendlyUnits.length < MAX_FRIENDLY_UNITS && currentCoin >= unitNumber) {
+          currentCoin -= unitNumber;
+          updateCoinDisplay();
+
+          const lastUnitX = friendlyUnits.length > 0 ? friendlyUnits[friendlyUnits.length - 1].x : 400;
+          const newX = lastUnitX - 250;
+
+          let unit;
+          switch (unitNumber) {
+            case 1:
+              unit = new Unit({x: newX, health: 100, attPower: 20, range: 50});
+              break;
+            case 2:
+              unit = new Unit({x: newX, health: 200, attPower: 25, range: 55});
+              break;
+            case 3:
+              unit = new Unit({x: newX, health: 300, attPower: 30, range: 60});
+              break;
+            case 4:
+              unit = new Unit({x: newX, health: 400, attPower: 35, range: 65});
+              break;
+            case 5:
+              unit = new Unit({x: newX, health: 500, attPower: 40, range: 70});
+              break;
+          }
           friendlyUnits.push(unit);
           unit.element.classList.add(`unit${unitNumber}-moving`);
-        } else {
+        } else if (friendlyUnits.length >= MAX_FRIENDLY_UNITS) {
           console.log("최대 유닛 수(100개)에 도달했습니다!");
+        } else {
+          console.log("코인이 부족합니다!");
         }
       });
     });
   }
 
-  // 유닛 생성 버튼 이벤트
   if (unitCreateBtn) {
     unitCreateBtn.addEventListener("click", () => {
       unitCreateBtn.style.display = 'none';
-      unitSelectionContainer.style.display = 'block';
       towerUpgradeBtn.style.display = 'none';
+      unitSelectionContainer.style.display = 'block';
       createUnitSelectionScreen();
+    });
+  }
+
+  // 타워 업그레이드 함수
+  function upgradeTower() {
+    const upgradeCost = 5;
+    if (currentCoin >= upgradeCost) {
+      currentCoin -= upgradeCost;
+      updateCoinDisplay();
+      friendlyTower.upgrade();
+    } else {
+      console.log("코인이 부족합니다!");
+    }
+  }
+
+  // 타워 업그레이드 버튼 이벤트
+  if (towerUpgradeBtn) {
+    towerUpgradeBtn.addEventListener("click", () => {
+      upgradeTower();
     });
   }
 
@@ -201,7 +301,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (enemyUnits.length < 1) {
       const enemy = new Unit({
         x: 3600,
-        y: 350,
         isEnemy: true,
         health: 100,
         attPower: 10,
@@ -211,78 +310,54 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }, 5000);
 
-  // 충돌 감지 및 공격 (사거리 반영)
+  // 충돌 감지
   function checkCollisions() {
-    friendlyUnits.forEach((friendly) => {
-      enemyUnits.forEach((enemy) => {
-        const distance = Math.abs(friendly.x - enemy.x);
-        if (distance < friendly.range || distance < enemy.range) {
+    friendlyUnits.forEach(friendly => {
+      enemyUnits.forEach(enemy => {
+        if (friendly.distanceTo(enemy) <= Math.max(friendly.range, enemy.range)) {
           friendly.attack(enemy);
           enemy.attack(friendly);
         }
       });
+
+      if (friendly.distanceTo(enemyTower) <= Math.max(friendly.range, enemyTower.range)) {
+        friendly.attack(enemyTower);
+        enemyTower.attack(friendly);
+      }
+    });
+
+    enemyUnits.forEach(enemy => {
+      if (enemy.distanceTo(friendlyTower) <= Math.max(enemy.range, friendlyTower.range)) {
+        enemy.attack(friendlyTower);
+        friendlyTower.attack(enemy);
+      }
     });
   }
 
-  const unitSpacing = 200; // 유닛 간 최소 간격
-  const startX = 400; // 유닛이 생성될 기본 위치
+  const unitSpacing = 200;
 
   function dontOverlap() {
-    let newX = startX;
-
-    // 기존 유닛들과 겹치지 않는 위치 찾기
-    friendlyUnits.forEach((unit, index) => {
-      if (index > 0) { // 첫 번째 유닛은 앞에 유닛이 없으므로 건너뜁니다.
-        const distance = Math.abs(friendlyUnits[index].x - friendlyUnits[index - 1].x); // 앞과 뒤 유닛 거리 계산
-
-        if (distance < unitSpacing) { // 앞 유닛과 뒷 유닛의 거리가 unitSpacing보다 적으면
-          friendlyUnits[index].speed = 0; // 뒤 유닛 정지
-          console.log(`유닛 ${index}가 유닛 ${index - 1}과 너무 가까워서 정지합니다.`);
-        } else {
-          // 거리 간격이 충분해지면 뒤 유닛이 다시 움직이도록
-          if (friendlyUnits[index].speed === 0 && friendlyUnits[index - 1].speed > 0) {
-            friendlyUnits[index].speed = 2; // 뒤 유닛이 다시 움직이도록 속도 설정
-            console.log(`유닛 ${index}가 유닛 ${index - 1}을 따라 다시 움직입니다.`);
-          }
-        }
+    for (let i = 1; i < friendlyUnits.length; i++) {
+      const distance = friendlyUnits[i-1].x - friendlyUnits[i].x;
+      if (distance < unitSpacing) {
+        friendlyUnits[i].speed = 0;
+      } else if (friendlyUnits[i].speed === 0) {
+        friendlyUnits[i].speed = GAME_SPEED;
       }
-    });
-
-    return newX;
-  }
-
-  // 타워 업그레이드 후 업그레이드 타워 이미지로 변경
-  function upgradeTower() {
-    if (tower) {
-      tower.style.backgroundImage = "url('img/upgraded-tower.png')";
-      tower.style.zIndex = "10"; // 업그레이드된 타워가 앞에 보이도록
-      console.log("타워 업그레이드 완료!");
-    } else {
-      console.log("타워가 초기화되지 않았습니다!");
     }
-  }
-
-  // 타워 업그레이드 버튼 클릭 시 처리
-  if (towerUpgradeBtn) {
-    towerUpgradeBtn.addEventListener("click", () => {
-      const upgradeCost = 5; // 업그레이드 비용
-      if (currentCoin >= upgradeCost) {
-        currentCoin -= upgradeCost;
-        updateCoinDisplay();
-        upgradeTower(); // 타워 업그레이드
-      } else {
-        console.log("코인이 부족합니다!");
-      }
-    });
+    if (friendlyUnits.length > 0 && !friendlyUnits[0].isFighting) {
+      friendlyUnits[0].speed = GAME_SPEED;
+    }
   }
 
   // 게임 루프
   function gameLoop() {
-    friendlyUnits.forEach((unit) => unit.update());
-    enemyUnits.forEach((unit) => unit.update());
-    dontOverlap();
     checkCollisions();
+    dontOverlap();
+    friendlyUnits.forEach(unit => unit.update());
+    enemyUnits.forEach(unit => unit.update());
     requestAnimationFrame(gameLoop);
   }
+
   gameLoop();
 });
