@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const rightSection = document.querySelector(".map-section.right");
 
   // 상태 변수
+  const GAME_SPEED = 2;
   let isMouseInLeft = false;
   let isMouseInRight = false;
   const friendlyUnits = [];
@@ -95,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       this.x = x;
       this.y = y;
-      this.speed = isEnemy ? -2 : 2;
+      this.speed = isEnemy ? -GAME_SPEED : GAME_SPEED;
       this.health = health;
       this.attackPower = attPower;
       this.range = range || 50; // 기본 사거리 50
@@ -105,13 +106,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     update() {
-      if (!this.isFighting) {
+      if (!this.isFighting) { // isFight는 항상 false 상태. 트루면 스피드를 줌. 맨 처음 유닛 생성시 이속 주는거임
         this.x += this.speed;
         this.element.style.left = `${this.x}px`;
       }
-      if (this.x < -50 || this.x > 4050) {
-        this.remove();
-      }
+      // if (this.x < -50 || this.x > 4050) { //TODO 이제 나무와 부딪혔을 때 나무 떄리는 로직 구현 필요
+      //   this.remove();
+      // }
     }
 
     attack(target) {
@@ -125,13 +126,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
     remove() {
       if (this.element.parentNode) {
-        content.removeChild(this.element);
+        this.element.parentNode.removeChild(this.element);
       }
       const array = this.isEnemy ? enemyUnits : friendlyUnits;
       const index = array.indexOf(this);
       if (index > -1) array.splice(index, 1);
+      if (!this.isEnemy) {
+        array[0].speed = GAME_SPEED; // 아군이든 적이든 선두 유닛 전진
+        console.log("======= 아군 선두 유닛을 다시 전진합니다 =======")
+      }
     }
   }
+
+  class Tower {
+    constructor({ x, y, isEnemy = false, health }) {
+      this.element = document.createElement("div");
+      this.element.style.position = "absolute";
+      this.element.style.backgroundImage = isEnemy
+          ? "url('img/enemy-tower.png')"
+          : "url('img/friendly-tower.png')";
+      this.element.style.backgroundSize = "cover";
+      this.element.style.left = `${x}px`;
+      this.element.style.top = `${y}px`;
+      content.appendChild(this.element);
+
+      this.x = x;
+    }
+
+    // 체력을 감소시키는 메서드
+    takeDamage(damage) {
+      this.health -= damage;
+      if (this.health <= 0) {
+        this.destroy();
+      }
+    }
+
+    // 타워를 파괴하는 메서드
+    destroy() {
+      this.element.remove(); // DOM에서 타워 요소 제거
+      // 추가적인 파괴 로직을 여기에 추가할 수 있습니다.
+    }
+  }
+
 
   // 유닛 생성 버튼 이벤트
   if (unitCreateBtn) {
@@ -220,12 +256,14 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           // 거리 간격이 충분해지면 뒤 유닛이 다시 움직이도록
           if (friendlyUnits[index].speed === 0 && friendlyUnits[index - 1].speed > 0) {
-            friendlyUnits[index].speed = 2; // 뒤 유닛이 다시 움직이도록 속도 설정
+            friendlyUnits[index].speed = GAME_SPEED; // 뒤 유닛이 다시 움직이도록 속도 설정
             console.log(`유닛 ${index}가 유닛 ${index - 1}을 따라 다시 움직입니다.`);
           }
         }
       }
     });
+
+
 
     return newX;
   }
