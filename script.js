@@ -123,17 +123,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     attack(target) {
-      this.isFighting = true;
-      target.health -= this.attackPower;
-      if (target.health <= 0) {
-        target.remove();
-        this.isFighting = false;
-        if (target.isEnemy) { // 적이 죽으면 코인 1 증가
-          currentCoin += 1;
-          updateCoinDisplay();
+      if (this.isFighting) return; // 이미 공격 중이면 중복 공격 방지
+
+      this.isFighting = true; // 공격 중 상태 설정
+      console.log(`유닛이 공격을 시작합니다! 대상 남은 체력: ${target.health}`);
+
+      setTimeout(() => {
+        target.health -= this.attackPower;
+        console.log(`유닛이 공격을 가했습니다! 대상 남은 체력: ${target.health}`);
+
+        if (target.health <= 0) {
+          target.remove();
+          this.isFighting = false; // 적이 죽었으니 다시 이동 가능
+          if (target.isEnemy) {
+            currentCoin += 1; // 코인 증가
+            updateCoinDisplay();
+          }
+        } else {
+          this.isFighting = false; // 공격 후 다시 공격 가능하도록 설정
         }
-      }
+      }, 1000); // 1초 공격 딜레이
     }
+
 
     remove() {
       if (this.element.parentNode) {
@@ -141,8 +152,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       const array = this.isEnemy ? enemyUnits : friendlyUnits;
       const index = array.indexOf(this);
-      if (index > -1) array.splice(index, 1);
+      if (index > -1) {
+        array.splice(index, 1);
+      }
     }
+
   }
 
   // 유닛 선택 화면 생성 함수
@@ -185,7 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 unit = new Unit({
                   x: 400,
                   y: 350,
-                  health: 150,
+                  health: 200,
                   attPower: 25,
                   range: 55,
                 });
@@ -194,7 +208,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 unit = new Unit({
                   x: 400,
                   y: 350,
-                  health: 200,
+                  health: 300,
                   attPower: 30,
                   range: 60,
                 });
@@ -203,7 +217,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 unit = new Unit({
                   x: 400,
                   y: 350,
-                  health: 250,
+                  health: 400,
                   attPower: 35,
                   range: 65,
                 });
@@ -212,7 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 unit = new Unit({
                   x: 400,
                   y: 350,
-                  health: 300,
+                  health:5300,
                   attPower: 40,
                   range: 70,
                 });
@@ -274,28 +288,28 @@ document.addEventListener("DOMContentLoaded", () => {
   const startX = 400; // 유닛이 생성될 기본 위치
 
   function dontOverlap() {
-    let newX = startX;
+    if (friendlyUnits.length < 2) return;
 
-    // 기존 유닛들과 겹치지 않는 위치 찾기
     friendlyUnits.forEach((unit, index) => {
-      if (index > 0) { // 첫 번째 유닛은 앞에 유닛이 없으므로 건너뜁니다.
-        const distance = Math.abs(friendlyUnits[index].x - friendlyUnits[index - 1].x); // 앞과 뒤 유닛 거리 계산
+      if (index > 0) {
+        const distance = Math.abs(friendlyUnits[index].x - friendlyUnits[index - 1].x);
 
-        if (distance < unitSpacing) { // 앞 유닛과 뒷 유닛의 거리가 unitSpacing 보다 적으면
-          friendlyUnits[index].speed = 0; // 뒤 유닛 정지
-          console.log(`유닛 ${index}가 유닛 ${index - 1}과 너무 가까워서 정지합니다.`);
+        if (distance < unitSpacing) {
+          if (friendlyUnits[index].speed !== 0) { // 상태 변화가 있을 때만 로그 출력
+            console.log(`유닛 ${index}가 유닛 ${index - 1}과 너무 가까워서 정지합니다.`);
+          }
+          friendlyUnits[index].speed = 0;
         } else {
-          // 거리 간격이 충분해지면 뒤 유닛이 다시 움직이도록
-          if (friendlyUnits[index].speed === 0 && friendlyUnits[index - 1].speed > 0) {
-            friendlyUnits[index].speed = 2; // 뒤 유닛이 다시 움직이도록 속도 설정
+          if (friendlyUnits[index].speed === 0) { // 다시 움직일 때만 로그 출력
             console.log(`유닛 ${index}가 유닛 ${index - 1}을 따라 다시 움직입니다.`);
           }
+          friendlyUnits[index].speed = 2;
         }
       }
     });
-
-    return newX;
   }
+
+
 
   // 게임 루프
   function gameLoop() {

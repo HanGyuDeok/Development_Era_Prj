@@ -203,9 +203,6 @@ p {
     filter: grayscale(1) brightness(80%);
 }
 
-.unit div {
-    transition: left 0.1s linear;
-}
 
 @keyframes unit1-moving {
     0% {
