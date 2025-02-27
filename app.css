@@ -4,7 +4,7 @@ html {
     height: 100%;
     padding: 0;
     margin: 0;
-    overflow: hidden;
+    /*overflow: hidden;*/
 }
 
 body {
@@ -101,18 +101,6 @@ body {
     z-index: -1;
 }
 
-#unitCreate {
-    position: absolute;
-    top: -10%;
-    left: 5%;
-    width: 120px;
-    height: 80px;
-    font-size: 15px;
-    border-radius: 15px;
-    color: white;
-    background-color: rgba(0, 0, 0, 1);
-    margin: 0;
-}
 
 .left {
     position: absolute;
@@ -167,23 +155,22 @@ p {
 }
 
 .coin_box {
-    position: fixed;
+    position: sticky;
     width: 120px;
     height: 50px;
-    top: 35%;
-    left : 10%;
+    top: 5%;
+    left: 5%;
     background-color: white;
     font-size: 30px;
     color: black;
     border-radius: 15px;
-    border-color: rgba(0, 0, 0, 0.1);
-    border: solid 3px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
 }
 
 #coin {
     position: absolute;
-    top : 20%;
-    left : 15%;
+    top: 20%;
+    left: 15%;
     padding-left: 50px;
     background-image: url("img/coin.png");
     background-repeat: no-repeat;
@@ -427,29 +414,59 @@ p {
     }
 }
 
+.unit5-moving {
+    animation: unit5-moving 1s steps(10, end) infinite;
+    background-size: contain;
+    background-repeat: no-repeat;
+    will-change: background-image;
+    image-rendering: pixelated; /* 잔상 방지 */
+    animation-timing-function: step-start; /* 전환 시 잔상 없애기 */
+}
+
+.select-choices {
+    position: absolute;
+    top: 85%;
+    left: 0;
+    width: 100%;
+    height: 20%;
+    align-items: flex-start;
+}
+
+#unitCreate {
+    position: absolute;
+    left: 5%;
+    width: 120px;
+    height: 60px;
+    font-size: 15px;
+    border-radius: 15px;
+    color: white;
+    background-color: rgba(0, 0, 0, 1);
+    margin: 0;
+}
+
 #unitSelectionContainer {
     position: absolute;
     top: 2%;
-    left: 83%;
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-
+    left: 5%;
 }
 
 .unit-creation {
     position: absolute;
     width: 100%;
     height: 100px;
-    top: 88%;
+    top: 10%;
+    left: 0;
 }
 
-.unitCreate{
-    width: 150px;
-    height: 100px;
+.unitCreate {
+    width: 100%;
+    height: 100%;
 }
-  
-.unit-select, #backButton {
+
+.unit-select {
+    position: relative;
+    top: 0;
+    left: 0;
     width: 120px;
     height: 50px;
     font-size: 15px;
@@ -457,6 +474,17 @@ p {
     color: white;
     background-color: rgba(0, 0, 0, 1);
     border: none;
-    cursor: pointer;
     margin-right: 20px;
+}
+
+#backButton {
+    position: sticky;
+    width: 120px;
+    height: 50px;
+    font-size: 15px;
+    border-radius: 15px;
+    color: white;
+    background-color: rgba(0, 0, 0, 1);
+    border: none;
+    left: 40%;
 }
