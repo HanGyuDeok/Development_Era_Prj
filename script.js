@@ -101,7 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
       this.range = range || 50; // 기본 사거리 50
       this.isEnemy = isEnemy;
       this.isFighting = false;
-      this.element.classList.add("unit1-moving"); // 움직임 구현
       this.isMoving = false;
     }
 
@@ -163,6 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
             range: 50,
           });
           friendlyUnits.push(unit);
+          unit.element.classList.add(`unit${unitNumber}-moving`);
         } else {
           console.log("최대 유닛 수(5개)에 도달했습니다!");
         }
