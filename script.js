@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const leftSection = document.querySelector(".map-section.left");
   const rightSection = document.querySelector(".map-section.right");
   const coin = document.querySelector(".coin_box");
-  const coin_count = document.getElementById("coin");
+  let coin_count = document.getElementById("coin");
 
   // 상태 변수
   const GAME_SPEED = 2;
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 유닛 클래스 정의
   class Unit {
-    constructor({ x, isEnemy = false, health, attPower, range }) {
+    constructor({x, isEnemy = false, health, attPower, range}) {
       this.element = document.createElement("div");
       this.element.style.position = "absolute";
       this.element.style.width = "200px";
@@ -129,54 +129,77 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     attack(target) {
+//       if (this.isFighting) return; // 이미 공격 중이면 중복 공격 방지
+
+//       this.isFighting = true; // 공격 중 상태 설정
+//       console.log(`유닛이 공격을 시작합니다! 대상 남은 체력: ${target.health}`);
+
+//       setTimeout(() => {
+//         target.health -= this.attackPower;
+//         console.log(`유닛이 공격을 가했습니다! 대상 남은 체력: ${target.health}`);
+
+//         if (target.health <= 0) {
+//           target.remove();
+//           this.isFighting = false; // 적이 죽었으니 다시 이동 가능
+//           if (target.isEnemy) {
+//             currentCoin += 1; // 코인 증가
+//             updateCoinDisplay();
+//           }
+//         } else {
+//           this.isFighting = false; // 공격 후 다시 공격 가능하도록 설정
+//         }
+//       }, 1000); // 1초 공격 딜레이
       // 유닛을 공격함
-      if(target.atktype === 'unit'){
+      if (target.atktype === 'unit') {
         this.isFighting = true;
         target.health -= this.attackPower;
         if (target.health <= 0) {
           target.remove();
           this.isFighting = false;
-          if(target.isEnemy) { // 적이 죽으면 코인 1 증가
-          currentCoin += 1;
-          updateCoinDisplay();
-        }
-      } else {
-        // 타워와의 거리가 유닛의 사거리 이내인지 확인
-        if (this.distanceTo(target) <= this.range) {
-          console.log("타워를 공격합니다!");
-          target.takeDamage(this.attackPower); // 타워에 피해를 줌
+          if (target.isEnemy) { // 적이 죽으면 코인 1 증가
+            currentCoin += 1;
+            updateCoinDisplay();
+          }
         } else {
-          console.log("타워가 사거리 밖에 있습니다.");
+          // 타워와의 거리가 유닛의 사거리 이내인지 확인
+          if (this.distanceTo(target) <= this.range) {
+            console.log("타워를 공격합니다!");
+            target.takeDamage(this.attackPower); // 타워에 피해를 줌
+          } else {
+            console.log("타워가 사거리 밖에 있습니다.");
+          }
+        }
+
+      }
+    }
+      //
+      // attack(tower) {
+      //   // 타워와의 거리가 유닛의 사거리 이내인지 확인
+      //   if (this.distanceTo(tower) <= this.range) {
+      //     console.log("타워를 공격합니다!");
+      //     tower.takeDamage(this.attackPower); // 타워에 피해를 줌
+      //   } else {
+      //     console.log("타워가 사거리 밖에 있습니다.");
+      //   }
+      // }
+
+
+      remove()
+      {
+        if (this.element.parentNode) {
+          this.element.parentNode.removeChild(this.element);
+        }
+        const array = this.isEnemy ? enemyUnits : friendlyUnits;
+        const index = array.indexOf(this);
+        if (index > -1) array.splice(index, 1);
+        if (!this.isEnemy) {
+          array[0].speed = GAME_SPEED; // 아군이든 적이든 선두 유닛 전진
+          console.log("======= 아군 선두 유닛이 다시 전진합니다 =======")
         }
       }
     }
-    //
-    // attack(tower) {
-    //   // 타워와의 거리가 유닛의 사거리 이내인지 확인
-    //   if (this.distanceTo(tower) <= this.range) {
-    //     console.log("타워를 공격합니다!");
-    //     tower.takeDamage(this.attackPower); // 타워에 피해를 줌
-    //   } else {
-    //     console.log("타워가 사거리 밖에 있습니다.");
-    //   }
-    // }
 
-
-    remove() {
-      if (this.element.parentNode) {
-        this.element.parentNode.removeChild(this.element);
-      }
-      const array = this.isEnemy ? enemyUnits : friendlyUnits;
-      const index = array.indexOf(this);
-      if (index > -1) array.splice(index, 1);
-      if (!this.isEnemy) {
-        array[0].speed = GAME_SPEED; // 아군이든 적이든 선두 유닛 전진
-        console.log("======= 아군 선두 유닛이 다시 전진합니다 =======")
-      }
-    }
-  }
-
-  class Tower {
+    class Tower {
     constructor(isFriendly, health, attackPower, range) {
       this.screenElem = document.querySelector(isFriendly?'friendly-base-tower':'enemy-base-tower');
       // 나중에 이 요소를 상위 요소에서 removeChild 형태로 삭제하면 됨!
@@ -219,7 +242,6 @@ document.addEventListener("DOMContentLoaded", () => {
         alert(towerType + " 타워가 파괴되었습니다.");
       }
     }
-
   }
 
   const friendlyTower = new Tower( // 아군 타워 생성 메소드
@@ -239,7 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function createUnitSelectionScreen() {
     let buttonsHTML = '';
     for (let i = 1; i <= 5; i++) {
-      buttonsHTML += `<button class="unit-select" data-unit="${i}">유닛 ${i}</button>`;
+      buttonsHTML += `<button class="unit-select" data-unit="${i}">유닛 ${i}/ 골드 : ${i}</button>`;
     }
     buttonsHTML += '<button id="backButton">뒤로 가기</button>';
     unitSelectionContainer.innerHTML = buttonsHTML;
@@ -253,18 +275,69 @@ document.addEventListener("DOMContentLoaded", () => {
     // 유닛 선택 버튼들에 이벤트 리스너 추가
     document.querySelectorAll(".unit-select").forEach(button => {
       button.addEventListener("click", (e) => {
-        const unitNumber = e.target.getAttribute("data-unit");
+        const unitNumber = parseInt(e.target.getAttribute("data-unit"), 10)
         console.log(`유닛 ${unitNumber} 선택됨`);
         if (friendlyUnits.length < MAX_FRIENDLY_UNITS) {
-          const unit = new Unit({
-            x: 400,
-            y: 350,
-            health: 100,
-            attPower: 20,
-            range: 50,
-          });
-          friendlyUnits.push(unit);
-          unit.element.classList.add(`unit${unitNumber}-moving`);
+          if (currentCoin >= unitNumber) { // 코인이 충분한 경우에만 유닛 생성
+            currentCoin -= unitNumber; // 코인 차감
+            updateCoinDisplay(); // UI 업데이트
+
+            let unit;
+            switch (unitNumber) {
+              case 1:
+                unit = new Unit({
+                  x: 400,
+                  y: 350,
+                  health: 100,
+                  attPower: 20,
+                  range: 50,
+                });
+                break;
+              case 2:
+                unit = new Unit({
+                  x: 400,
+                  y: 350,
+                  health: 200,
+                  attPower: 25,
+                  range: 55,
+                });
+                break;
+              case 3:
+                unit = new Unit({
+                  x: 400,
+                  y: 350,
+                  health: 300,
+                  attPower: 30,
+                  range: 60,
+                });
+                break;
+              case 4:
+                unit = new Unit({
+                  x: 400,
+                  y: 350,
+                  health: 400,
+                  attPower: 35,
+                  range: 65,
+                });
+                break;
+              case 5:
+                unit = new Unit({
+                  x: 400,
+                  y: 350,
+                  health:5300,
+                  attPower: 40,
+                  range: 70,
+                });
+                break;
+              default:
+                console.log("잘못된 유닛 번호");
+                return;
+            }
+            friendlyUnits.push(unit);
+            unit.element.classList.add(`unit${unitNumber}-moving`);
+          } else {
+            console.log("코인이 부족합니다!");
+          }
         } else {
           console.log("최대 유닛 수(5개)에 도달했습니다!");
         }
@@ -307,27 +380,27 @@ document.addEventListener("DOMContentLoaded", () => {
     // 편리하게 짜든지, 성능 및 알고리즘에 충실하게 짜든지 => 선택에 따름
 
     friendlyUnits.forEach((friendly) => {
-      enemyUnits.forEach((enemy) => {
-        const distance = Math.abs(friendly.x - enemy.x);
-        if (distance < friendly.range || distance < enemy.range) {
-          friendly.attack(enemy);
-          enemy.attack(friendly);
-        }
-            const unitToFtower = Math.abs(enemy.x - friendlyTower.x);
-            if(unitToFtower < enemy.range || unitToFtower <  friendlyTower.range) {
-              friendlyTower.attack(enemy);
-              enemy.attack(friendlyTower);
+          enemyUnits.forEach((enemy) => {
+                const distance = Math.abs(friendly.x - enemy.x);
+                if (distance < friendly.range || distance < enemy.range) {
+                  friendly.attack(enemy);
+                  enemy.attack(friendly);
+                }
+                const unitToFtower = Math.abs(enemy.x - friendlyTower.x);
+                if(unitToFtower < enemy.range || unitToFtower <  friendlyTower.range) {
+                  friendlyTower.attack(enemy);
+                  enemy.attack(friendlyTower);
+                }
+              }
+              // friendlyTower 체크 로직 추가
+          );
+          // enemyTower 채크 로직 추가
+          const unitToEtower = Math.abs(friendly.x - enemyTower.x);
+          if(unitToEtower < friendly.range || unitToEtower < enemyTower.range){
+            enemyTower.attack(friendly);
+            friendly.attack(enemyTower);
           }
-      }
-      // friendlyTower 체크 로직 추가
-      );
-      // enemyTower 채크 로직 추가
-      const unitToEtower = Math.abs(friendly.x - enemyTower.x);
-      if(unitToEtower < friendly.range || unitToEtower < enemyTower.range){
-        enemyTower.attack(friendly);
-        friendly.attack(enemyTower);
-      }
-    }
+        }
     );
   }
 
@@ -335,28 +408,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const startX = 400; // 유닛이 생성될 기본 위치
 
   function dontOverlap() {
-    let newX = startX;
+    if (friendlyUnits.length < 2) return;
 
-    // 기존 유닛들과 겹치지 않는 위치 찾기
     friendlyUnits.forEach((unit, index) => {
-      if (index > 0) { // 첫 번째 유닛은 앞에 유닛이 없으므로 건너뜁니다.
-        const distance = Math.abs(friendlyUnits[index].x - friendlyUnits[index - 1].x); // 앞과 뒤 유닛 거리 계산
+      if (index > 0) {
+        const distance = Math.abs(friendlyUnits[index].x - friendlyUnits[index - 1].x);
 
-        if (distance < unitSpacing) { // 앞 유닛과 뒷 유닛의 거리가 unitSpacing보다 적으면
-          friendlyUnits[index].speed = 0; // 뒤 유닛 정지
-          console.log(`유닛 ${index}가 유닛 ${index - 1}과 너무 가까워서 정지합니다.`);
+        if (distance < unitSpacing) {
+          if (friendlyUnits[index].speed !== 0) { // 상태 변화가 있을 때만 로그 출력
+            console.log(`유닛 ${index}가 유닛 ${index - 1}과 너무 가까워서 정지합니다.`);
+          }
+          friendlyUnits[index].speed = 0;
         } else {
           // 거리 간격이 충분해지면 뒤 유닛이 다시 움직이도록
           if (friendlyUnits[index].speed === 0 && friendlyUnits[index - 1].speed > 0) {
             friendlyUnits[index].speed = GAME_SPEED; // 뒤 유닛이 다시 움직이도록 속도 설정
             console.log(`유닛 ${index}가 유닛 ${index - 1}을 따라 다시 움직입니다.`);
           }
+          friendlyUnits[index].speed = 2;
         }
       }
     });
-    return newX;
   }
-
+  return newX;
+}
   // 게임 루프
   function gameLoop() {
     friendlyUnits.forEach((unit) => unit.update());
@@ -365,5 +440,7 @@ document.addEventListener("DOMContentLoaded", () => {
     checkCollisions();
     requestAnimationFrame(gameLoop);
   }
+
   gameLoop();
 });
+
