@@ -425,6 +425,7 @@ p {
     100% {
         background-image: url('./ani/unit5-ani/unit5-1.png');
     }
+}
 
 #unitSelectionContainer {
     position: absolute;
