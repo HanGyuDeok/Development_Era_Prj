@@ -75,11 +75,19 @@ document.addEventListener("DOMContentLoaded", () => {
     upgrade() {
       this.level += 1;
       this.health += 1000;
-      this.maxHealth += 1000;
+      this.maxHealth += 1000; // feature/castle/sujung48에서 추가
       this.attackPower += 10;
       this.range += 10;
+
       if (this.screenElem) {
-        this.screenElem.style.backgroundImage = "url('img/upgraded-tower.png')";
+        if (this.level === 2) {
+          this.screenElem.style.backgroundImage = "url('img/upgraded-tower2.png')";
+          this.screenElem.style.width = "350px";
+        } else if (this.level === 3) {
+          this.screenElem.style.backgroundImage = "url('img/upgraded-tower.png')";
+          this.screenElem.style.width = "600px";
+          document.getElementById("friendly_base_bar").style.width = "400px";
+        }
         this.screenElem.style.zIndex = "10";
       } else {
         console.error("타워 요소를 찾을 수 없습니다!");
