@@ -17,14 +17,14 @@ document.addEventListener("DOMContentLoaded", () => {
   let coin_count = document.getElementById("coin"); // 현재 코인 수를 표시하는 요소
 
   // 상태 변수 - 게임의 전반적인 상태를 관리
-  const GAME_SPEED = 2; // 유닛 이동 속도 (화소 단위/프레임)
+  const GAME_SPEED = 30; // 유닛 이동 속도 (화소 단위/프레임)
   let isMouseInLeft = false; // 마우스가 맵 좌측에 있는지 여부 (스크롤 제어용)
   let isMouseInRight = false; // 마우스가 맵 우측에 있는지 여부 (스크롤 제어용)
   let currentCoin = parseInt(coin_count.textContent, 10); // 현재 보유 코인 수 (초기값은 HTML에서 가져옴)
   const friendlyUnits = []; // 아군 유닛을 저장하는 배열
   const enemyUnits = []; // 적군 유닛을 저장하는 배열
   const MAX_FRIENDLY_UNITS = 100; // 아군 유닛 최대 생성 가능 수
-  const MAP_WIDTH = 3600; // 맵의 너비 (feature/intersection/gyu에서 추가)
+  const MAP_WIDTH = 4000; // 맵의 너비 (feature/intersection/gyu에서 추가)
 
   // Tower 클래스 정의
   class Tower {
@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
       this.maxHealth = health;
       this.attackPower = attackPower;
       this.range = range;
-      this.x = isFriendly ? 520 : 3820;
+      this.x = isFriendly ? 240 : 3820;
       this.name = isFriendly ? '아군 타워' : '적군 타워';
       this.level = 1;
       this.isDestroyed = false; // 타워 파괴 상태 추적 (feature/intersection/gyu에서 추가)
@@ -119,8 +119,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 타워 인스턴스 생성
-  const friendlyTower = new Tower(true, 5000, 30, 50);
-  const enemyTower = new Tower(false, 5000, 30, 50);
+  const friendlyTower = new Tower(true, 5000, 100, 100);
+  const enemyTower = new Tower(false, 10000, 100, 100);
 
   // 오디오 버튼 이벤트 - 배경 음악 재생/정지 토글
   if (audioBtn && audio && icon) {
@@ -148,6 +148,26 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
     console.error("start 또는 stage 요소를 찾을 수 없습니다.", { start, stage });
   }
+  function startGameLogic() {
+    console.log("게임 로직이 시작되었습니다!");
+
+    // 5초마다 적 유닛 생성
+    setInterval(() => {
+      if (!enemyTower.isDestroyed && enemyUnits.length < 2) {
+        const enemy = new Unit({
+          x: 3600,
+          isEnemy: true,
+          health: 1200,
+          attPower: 100,
+          range: 170,
+          width: 300,
+          height: 300
+        });
+        enemyUnits.push(enemy);
+        console.log("새로운 적 유닛 생성됨", enemyUnits);
+      }
+    }, 5000);
+  }
 
   // 난이도 선택 이벤트 - "EASY" 버튼 클릭 시 게임 시작
   if (easy && content && map) {
@@ -158,6 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
       unitCreateBtn.style.display = "block";
       towerUpgradeBtn.style.display = "block";
       coin.style.display = "block";
+      startGameLogic();
     });
   }
 
@@ -328,19 +349,19 @@ document.addEventListener("DOMContentLoaded", () => {
           let unit;
           switch (unitNumber) {
             case 1:
-              unit = new Unit({x: 250, health: 100, attPower: 20, range: 50, unitNum: 1, width: 200, height: 200});
+              unit = new Unit({x: 250, health: 500, attPower:100, range: 170, unitNum: 1, width: 200, height: 200});
               break;
             case 2:
-              unit = new Unit({x: 250, health: 200, attPower: 25, range: 50, unitNum: 2, width: 200, height: 250});
+              unit = new Unit({x: 250, health: 1500, attPower:150, range: 170, unitNum: 2, width: 200, height: 250});
               break;
             case 3:
-              unit = new Unit({x: 250, health: 300, attPower: 30, range: 50, unitNum: 3, width: 200, height: 200});
+              unit = new Unit({x: 250, health: 700, attPower:200, range: 220, unitNum: 3, width: 200, height: 200});
               break;
             case 4:
-              unit = new Unit({x: 250, health: 100, attPower: 50, range: 600, unitNum: 4, width: 120, height: 150});
+              unit = new Unit({x: 250, health: 100, attPower:600, range: 600, unitNum: 4, width: 120, height: 150});
               break;
             case 5:
-              unit = new Unit({x: 250, health: 200, attPower: 10000, range: 600, unitNum: 5, width: 160, height: 200});
+              unit = new Unit({x: 250, health: 200, attPower: 1200, range: 600, unitNum: 5, width: 160, height: 200});
               break;
           }
           friendlyUnits.push(unit);
@@ -381,22 +402,6 @@ document.addEventListener("DOMContentLoaded", () => {
       upgradeTower();
     });
   }
-
-  // 적 유닛 자동 생성 - 주석 처리된 부분 해제 및 통합
-  setInterval(() => {
-    if (!enemyTower.isDestroyed && enemyUnits.length < 1) {
-      const enemy = new Unit({
-        x: 3600,
-        isEnemy: true,
-        health: 1000,
-        attPower: 50,
-        range: 50,
-        width: 300,
-        height: 300
-      });
-      enemyUnits.push(enemy);
-    }
-  }, 5000);
 
   // 충돌 감지 - feature/intersection/gyu의 상세 로직 사용
   function checkCollisions() {
