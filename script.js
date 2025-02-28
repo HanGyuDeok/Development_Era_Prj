@@ -91,16 +91,20 @@ document.addEventListener("DOMContentLoaded", () => {
     coin_count.textContent = currentCoin.toString();
   }
 
-  // 유닛 클래스 정의
   class Unit {
-    constructor({x, isEnemy = false, health, attPower, range, unitNum}) {
+    constructor({x, isEnemy = false, health, attPower, range, unitNum, width = 200, height = 200}) {
       this.element = document.createElement("div");
       this.element.style.position = "absolute";
-      this.element.style.width = "200px";
-      this.element.style.height = "200px";
+      this.element.style.width = `${width}px`; // 동적 너비 적용
+      this.element.style.height = `${height}px`; // 동적 높이 적용
       this.element.style.backgroundImage = isEnemy
-        ? "url('img/enemy-unit.png')"
-        : "url('img/friendly-unit.png')";
+        ? "url(./ani/enemy1/enemy1_1.png)"
+        : `url(./ani/unit${unitNum}_ani/unit${unitNum}-1.png)`;
+      if (unitNum !== 1 && !isEnemy) {
+        this.element.style.transform = "scaleX(-1)"; // 아군 유닛 반전
+      } else if (isEnemy) {
+        this.element.style.transform = "scaleX(1)"; // 적군 유닛 기본 방향
+      }
       this.element.style.backgroundSize = "cover";
       this.element.style.left = `${x}px`;
       this.element.style.bottom = `40px`;
@@ -113,16 +117,17 @@ document.addEventListener("DOMContentLoaded", () => {
       this.range = range || 50;
       this.isEnemy = isEnemy;
       this.isFighting = false;
-      this.element.classList.add(`unit${unitNum}-moving`);
+      this.unitNum = unitNum || (isEnemy ? "enemy1" : 100); // 적군 유닛은 "100"으로 설정 100번부터 시작
+      this.element.classList.add(`${this.isEnemy ? "enemy1" : `unit${unitNum}`}-moving`); // 기본 이동 애니메이션 적용
     }
 
     update() {
       if (!this.isFighting && this.speed !== 0) {
         this.x += this.speed;
         this.element.style.left = `${this.x}px`;
-        this.element.style.animationPlayState = "running";
+        this.element.classList.add(`${this.isEnemy ? "enemy1" : `unit${this.unitNum}`}-moving`);
       } else if (!this.isFighting) {
-        this.element.style.animationPlayState = "paused";
+        this.element.classList.remove(`${this.isEnemy ? "enemy1" : `unit${this.unitNum}`}-moving`);
       }
 
       // 맵 밖으로 나가면 제거
@@ -139,6 +144,13 @@ document.addEventListener("DOMContentLoaded", () => {
       if (this.isFighting) return;
 
       this.isFighting = true;
+
+      // 이동 애니메이션 제거하고 공격 애니메이션 추가
+      this.element.classList.remove(`${this.isEnemy ? "enemy1" : `unit${this.unitNum}`}-moving`);
+      this.element.classList.add(`${this.isEnemy ? "unit1" : `unit${this.unitNum}`}-attack`);
+      if (this.unitNum === 1) {
+        this.element.style.transform = "scaleX(-1)"
+      }
       if (target.atktype === "unit") {
         target.health -= this.attackPower;
         if (target.health <= 0) {
@@ -152,13 +164,22 @@ document.addEventListener("DOMContentLoaded", () => {
         if (this.distanceTo(target) <= this.range) {
           target.takeDamage(this.attackPower);
           if (target.health <= 0) {
-            this.isFighting = false; // 타워 파괴 후 전진 가능하도록
+            this.isFighting = false; // 타워 파괴 후 전진 가능
           }
         }
       }
+
+      // 공격 종료 후 이동 애니메이션 복구
       setTimeout(() => {
         this.isFighting = false;
-      }, 1000);
+        this.element.classList.remove(`${this.isEnemy ? "unit1" : `unit${this.unitNum}`}-attack`);
+        if (this.unitNum === 1) {
+          this.element.style.transform = "scaleX(-1)"
+        }
+        if (this.speed !== 0) {
+          this.element.classList.add(`${this.isEnemy ? "enemy1" : `unit${this.unitNum}`}-moving`);
+        }
+      }, 1000); // 공격 지속 시간 (1초)
     }
 
     remove() {
@@ -263,19 +284,19 @@ document.addEventListener("DOMContentLoaded", () => {
           let unit;
           switch (unitNumber) {
             case 1:
-              unit = new Unit({x: 450, health: 100, attPower: 20, range: 50, unitNum: 1});
+              unit = new Unit({x: 450, health: 100, attPower: 20, range: 50, unitNum: 1, width: 200, height: 200});
               break;
             case 2:
-              unit = new Unit({x: 450, health: 200, attPower: 25, range: 50, unitNum: 2});
+              unit = new Unit({x: 450, health: 200, attPower: 25, range: 50, unitNum: 2, width: 200, height: 250});
               break;
             case 3:
-              unit = new Unit({x: 450, health: 300, attPower: 30, range: 50, unitNum: 3});
+              unit = new Unit({x: 450, health: 300, attPower: 30, range: 50, unitNum: 3, width: 200, height: 200});
               break;
             case 4:
-              unit = new Unit({x: 450, health: 100, attPower: 50, range: 600, unitNum: 4});
+              unit = new Unit({x: 450, health: 100, attPower: 50, range: 600, unitNum: 4, width: 120, height: 150});
               break;
             case 5:
-              unit = new Unit({x: 450, health: 200, attPower: 100, range: 600, unitNum: 5});
+              unit = new Unit({x: 450, health: 200, attPower: 10000, range: 600, unitNum: 5, width: 160, height: 200});
               break;
           }
           friendlyUnits.push(unit);
@@ -316,20 +337,22 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 적 유닛 자동 생성
-  setInterval(() => {
-    if (enemyUnits.length < 1 && !enemyTower.isDestroyed) {
+/*  setInterval(() => {
+    if (!enemyTower.isDestroyed) {
+
       const enemy = new Unit({
         x: 3600,
         isEnemy: true,
-        health: 100,
-        attPower: 10,
+        health: 1000,
+        attPower: 50,
         range: 50,
+        width: 300,
+        height: 300
       });
       enemyUnits.push(enemy);
     }
-  }, 5000);
+  }, 5000);*/
 
-  // 충돌 감지
   function checkCollisions() {
     // 아군 유닛과 적군 유닛 간의 상호작용
     friendlyUnits.forEach((friendly) => {
@@ -340,15 +363,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (distance <= enemyRange && distance > friendlyRange) {
           enemy.attack(friendly);
-          enemy.element.classList.remove("unit1-attack");
-          enemy.element.classList.add("unit1-attack");
         } else if (distance <= friendlyRange && distance > enemyRange) {
           friendly.attack(enemy);
         } else if (distance <= friendlyRange && distance <= enemyRange) {
           friendly.attack(enemy);
           enemy.attack(friendly);
-          enemy.element.classList.remove("unit1-attack");
-          enemy.element.classList.add("unit1-attack");
         }
       });
     });
