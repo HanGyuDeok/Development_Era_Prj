@@ -150,8 +150,9 @@ document.addEventListener("DOMContentLoaded", () => {
       stage.style.display = "flex";
     });
   } else {
-    console.error("start 또는 stage 요소를 찾을 수 없습니다.", { start, stage });
+    console.error("start 또는 stage 요소를 찾을 수 없습니다.", {start, stage});
   }
+
   function startGameLogic() {
     console.log("게임 로직이 시작되었습니다!");
 
@@ -160,6 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!enemyTower.isDestroyed && enemyUnits.length < 2) {
         const enemy = new Unit({
           x: 3600,
+          y: 40,
           isEnemy: true,
           health: 1200,
           attPower: 100,
@@ -209,6 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (isMouseInLeft) map.scrollLeft -= 10;
       if (isMouseInRight) map.scrollLeft += 10;
     }
+
     setInterval(scrollContent, 6); // 6ms마다 스크롤 업데이트 (약 166fps)
   }
 
@@ -218,7 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   class Unit {
-    constructor({x, isEnemy = false, health, attPower, range, unitNum, width = 200, height = 200}) {
+    constructor({x, y, isEnemy = false, health, attPower, range, unitNum, width = 200, height = 200}) {
       // 유닛 컨테이너 요소 생성
       this.element = document.createElement("div");
       this.element.style.position = "absolute";
@@ -234,19 +237,19 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       this.element.style.backgroundSize = "cover";
       this.element.style.left = `${x}px`;
-      this.element.style.bottom = `40px`;
+      this.element.style.bottom = `${y}px`;
 
       // 체력바 컨테이너 추가 (기지 바와 유사한 스타일 적용)
       this.healthBarContainer = document.createElement("div");
       this.healthBarContainer.style.position = "absolute";
-      this.healthBarContainer.style.width = `${width-60}px`;
+      this.healthBarContainer.style.width = `${width - 60}px`;
       this.healthBarContainer.style.height = "15px"; // 기지 바와 동일한 높이
       this.healthBarContainer.style.top = "-20px"; // 유닛 위에 위치
       this.healthBarContainer.style.left = "40px";
       this.healthBarContainer.style.backgroundColor = "#555"; // 바탕색
       this.healthBarContainer.style.borderRadius = "5px";
       this.healthBarContainer.style.overflow = "hidden";
-      if(unitNum !== 1 && !isEnemy) {
+      if (unitNum !== 1 && !isEnemy) {
         this.healthBarContainer.style.transform = "scaleX(-1)";
       }
 
@@ -414,19 +417,64 @@ document.addEventListener("DOMContentLoaded", () => {
           let unit;
           switch (unitNumber) {
             case 1:
-              unit = new Unit({x: 330, health: 500, attPower:100, range: 170, unitNum: 1, width: 200, height: 200});
+              unit = new Unit({
+                x: 330,
+                y: 40,
+                health: 500,
+                attPower: 100,
+                range: 170,
+                unitNum: 1,
+                width: 200,
+                height: 200
+              });
               break;
             case 2:
-              unit = new Unit({x: 330, health: 1500, attPower:150, range: 170, unitNum: 2, width: 200, height: 250});
+              unit = new Unit({
+                x: 330,
+                y: 40,
+                health: 1500,
+                attPower: 150,
+                range: 170,
+                unitNum: 2,
+                width: 200,
+                height: 250
+              });
               break;
             case 3:
-              unit = new Unit({x: 330, health: 700, attPower:200, range: 220, unitNum: 3, width: 200, height: 200});
+              unit = new Unit({
+                x: 330,
+                y: 40,
+                health: 700,
+                attPower: 200,
+                range: 220,
+                unitNum: 3,
+                width: 200,
+                height: 200
+              });
               break;
             case 4:
-              unit = new Unit({x: 330, health: 100, attPower:600, range: 600, unitNum: 4, width: 150, height: 150});
+              unit = new Unit({
+                x: 330,
+                y: 150,
+                health: 100,
+                attPower: 600,
+                range: 600,
+                unitNum: 4,
+                width: 150,
+                height: 150
+              });
               break;
             case 5:
-              unit = new Unit({x: 330, health: 200, attPower: 1200, range: 600, unitNum: 5, width: 160, height: 200});
+              unit = new Unit({
+                x: 330,
+                y: 40,
+                health: 200,
+                attPower: 1200,
+                range: 600,
+                unitNum: 5,
+                width: 160,
+                height: 200
+              });
               break;
           }
           friendlyUnits.push(unit);
