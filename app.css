@@ -345,6 +345,7 @@ p {
     color: white;
     background-color: rgba(0, 0, 0, 1);
     margin: 0;
+    display: none;
 }
 
 #unitSelectionContainer {
@@ -408,4 +409,5 @@ p {
     color: white;
     background-color: rgba(0, 0, 0, 1);
     margin: 0;
+    display: none;
 }
