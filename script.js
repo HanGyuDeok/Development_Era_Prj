@@ -17,14 +17,14 @@ document.addEventListener("DOMContentLoaded", () => {
   let coin_count = document.getElementById("coin"); // 현재 코인 수를 표시하는 요소
 
   // 상태 변수 - 게임의 전반적인 상태를 관리
-  const GAME_SPEED = 30; // 유닛 이동 속도 (화소 단위/프레임)
+  const GAME_SPEED = 2; // 유닛 이동 속도 (화소 단위/프레임)
   let isMouseInLeft = false; // 마우스가 맵 좌측에 있는지 여부 (스크롤 제어용)
   let isMouseInRight = false; // 마우스가 맵 우측에 있는지 여부 (스크롤 제어용)
   let currentCoin = parseInt(coin_count.textContent, 10); // 현재 보유 코인 수 (초기값은 HTML에서 가져옴)
   const friendlyUnits = []; // 아군 유닛을 저장하는 배열
   const enemyUnits = []; // 적군 유닛을 저장하는 배열
   const MAX_FRIENDLY_UNITS = 100; // 아군 유닛 최대 생성 가능 수
-  const MAP_WIDTH = 4000; // 맵의 너비 (feature/intersection/gyu에서 추가)
+  const MAP_WIDTH = 3800; // 맵의 너비 (feature/intersection/gyu에서 추가)
 
   // Tower 클래스 정의
   class Tower {
@@ -87,10 +87,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (this.screenElem) {
           if (this.level === 2) {
             this.screenElem.style.backgroundImage = "url('img/upgraded-tower2.png')";
-            this.screenElem.style.width = "350px";
+            this.screenElem.style.width = "550px";
+            this.screenElem.style.backgroundSize = "contain";
+            this.screenElem.style.left = "60px";
           } else if (this.level === 3) {
             this.screenElem.style.backgroundImage = "url('img/upgraded-tower.png')";
             this.screenElem.style.width = "600px";
+            this.screenElem.style.backgroundSize = "contain";
+            this.screenElem.style.left = "120px";
             document.getElementById("friendly_base_bar").style.width = "400px";
           }
           this.screenElem.style.zIndex = "10";
@@ -139,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 시작 화면 이벤트 - 게임 시작 버튼 클릭 시 난이도 선택 화면 표시
   if (start && stage) {
-    console.log("start와 stage 요소가 정상적으로 선택되었습니다.");
+    console.log("start 와 stage 요소가 정상적으로 선택되었습니다.");
     start.addEventListener("click", () => {
       console.log("start 버튼 클릭됨");
       start.style.display = "none";
@@ -213,9 +217,9 @@ document.addEventListener("DOMContentLoaded", () => {
     coin_count.textContent = currentCoin.toString();
   }
 
-  // 유닛 클래스 정의
   class Unit {
     constructor({x, isEnemy = false, health, attPower, range, unitNum, width = 200, height = 200}) {
+      // 유닛 컨테이너 요소 생성
       this.element = document.createElement("div");
       this.element.style.position = "absolute";
       this.element.style.width = `${width}px`;
@@ -231,10 +235,58 @@ document.addEventListener("DOMContentLoaded", () => {
       this.element.style.backgroundSize = "cover";
       this.element.style.left = `${x}px`;
       this.element.style.bottom = `40px`;
+
+      // 체력바 컨테이너 추가 (기지 바와 유사한 스타일 적용)
+      this.healthBarContainer = document.createElement("div");
+      this.healthBarContainer.style.position = "absolute";
+      this.healthBarContainer.style.width = `${width-60}px`;
+      this.healthBarContainer.style.height = "15px"; // 기지 바와 동일한 높이
+      this.healthBarContainer.style.top = "-20px"; // 유닛 위에 위치
+      this.healthBarContainer.style.left = "40px";
+      this.healthBarContainer.style.backgroundColor = "#555"; // 바탕색
+      this.healthBarContainer.style.borderRadius = "5px";
+      this.healthBarContainer.style.overflow = "hidden";
+      if(unitNum !== 1 && !isEnemy) {
+        this.healthBarContainer.style.transform = "scaleX(-1)";
+      }
+
+      // 체력바 내부 (그라디언트와 효과 적용)
+      this.healthBar = document.createElement("div");
+      this.healthBar.style.width = "100%"; // 초기 체력 100%
+      this.healthBar.style.height = "100%";
+      this.healthBar.style.background = `
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.3), transparent),
+      linear-gradient(to right, ${isEnemy ? '#ff3019' : '#00cc00'} 0%, ${isEnemy ? '#e73827' : '#009900'} 50%, ${isEnemy ? '#ff3019' : '#00cc00'} 100%)
+    `; // 적군은 빨강, 아군은 초록 계열
+      this.healthBar.style.boxShadow = "inset 0 0 5px #000";
+      this.healthBar.style.borderRadius = "5px";
+      this.healthBar.style.transition = "width 0.3s ease";
+
+      // 체력 텍스트 추가
+      this.healthText = document.createElement("div");
+      this.healthText.className = "health-text";
+      this.healthText.style.position = "absolute";
+      this.healthText.style.top = "50%";
+      this.healthText.style.left = "50%";
+      this.healthText.style.transform = "translate(-50%, -50%)";
+      this.healthText.style.color = "#fff";
+      this.healthText.style.textShadow = "1px 1px 2px #000";
+      this.healthText.style.zIndex = "20";
+      this.healthText.style.fontSize = "12px"; // 유닛 크기에 맞게 조정
+      this.healthText.style.pointerEvents = "none";
+      this.healthText.textContent = `${health}/${health}`; // 초기 체력 표시
+
+      this.healthBarContainer.appendChild(this.healthBar);
+      this.healthBarContainer.appendChild(this.healthText);
+      this.element.appendChild(this.healthBarContainer);
+
       content.appendChild(this.element);
+
+      // 속성 초기화
       this.atktype = "unit";
       this.x = x;
       this.speed = isEnemy ? -GAME_SPEED : GAME_SPEED;
+      this.maxHealth = health; // 최대 체력 저장
       this.health = health;
       this.attackPower = attPower;
       this.range = range || 50;
@@ -244,6 +296,7 @@ document.addEventListener("DOMContentLoaded", () => {
       this.element.classList.add(`${this.isEnemy ? "enemy1" : `unit${unitNum}`}-moving`);
     }
 
+    // 유닛 상태 업데이트
     update() {
       if (!this.isFighting && this.speed !== 0) {
         this.x += this.speed;
@@ -253,10 +306,20 @@ document.addEventListener("DOMContentLoaded", () => {
         this.element.classList.remove(`${this.isEnemy ? "enemy1" : `unit${this.unitNum}`}-moving`);
       }
 
+      // 체력바와 텍스트 업데이트
+      this.updateHealthBar();
+
       // 맵 밖으로 나가면 제거
       if (this.x < 0 || this.x > MAP_WIDTH) {
         this.remove();
       }
+    }
+
+    // 체력바와 텍스트 업데이트 메서드
+    updateHealthBar() {
+      const healthPercentage = Math.max(0, (this.health / this.maxHealth) * 100); // 음수 방지
+      this.healthBar.style.width = `${healthPercentage}%`;
+      this.healthText.textContent = `${Math.max(0, this.health)}/${this.maxHealth}`; // 현재 체력/최대 체력
     }
 
     distanceTo(target) {
@@ -265,16 +328,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     attack(target) {
       if (this.isFighting) return;
-
       this.isFighting = true;
       this.element.classList.remove(`${this.isEnemy ? "enemy1" : `unit${this.unitNum}`}-moving`);
       this.element.classList.add(`${this.isEnemy ? "unit1" : `unit${this.unitNum}`}-attack`);
       if (this.unitNum === 1) {
         this.element.style.transform = "scaleX(-1)";
+        this.healthBarContainer.style.transform = "scaleX(-1)";
       }
 
       if (target.atktype === "unit") {
         target.health -= this.attackPower;
+        target.updateHealthBar(); // 공격받은 유닛의 체력바 업데이트
         if (target.health <= 0) {
           target.remove();
           if (target.isEnemy) {
@@ -286,7 +350,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (this.distanceTo(target) <= this.range) {
           target.takeDamage(this.attackPower);
           if (target.health <= 0) {
-            this.isFighting = false; // 타워 파괴 후 전진 가능
+            this.isFighting = false;
           }
         }
       }
@@ -296,6 +360,7 @@ document.addEventListener("DOMContentLoaded", () => {
         this.element.classList.remove(`${this.isEnemy ? "unit1" : `unit${this.unitNum}`}-attack`);
         if (this.unitNum === 1) {
           this.element.style.transform = "scaleX(-1)";
+          this.healthBarContainer.style.transform = "scaleX(-1)";
         }
         if (this.speed !== 0) {
           this.element.classList.add(`${this.isEnemy ? "enemy1" : `unit${this.unitNum}`}-moving`);
@@ -349,19 +414,19 @@ document.addEventListener("DOMContentLoaded", () => {
           let unit;
           switch (unitNumber) {
             case 1:
-              unit = new Unit({x: 250, health: 500, attPower:100, range: 170, unitNum: 1, width: 200, height: 200});
+              unit = new Unit({x: 330, health: 500, attPower:100, range: 170, unitNum: 1, width: 200, height: 200});
               break;
             case 2:
-              unit = new Unit({x: 250, health: 1500, attPower:150, range: 170, unitNum: 2, width: 200, height: 250});
+              unit = new Unit({x: 330, health: 1500, attPower:150, range: 170, unitNum: 2, width: 200, height: 250});
               break;
             case 3:
-              unit = new Unit({x: 250, health: 700, attPower:200, range: 220, unitNum: 3, width: 200, height: 200});
+              unit = new Unit({x: 330, health: 700, attPower:200, range: 220, unitNum: 3, width: 200, height: 200});
               break;
             case 4:
-              unit = new Unit({x: 250, health: 100, attPower:600, range: 600, unitNum: 4, width: 120, height: 150});
+              unit = new Unit({x: 330, health: 100, attPower:600, range: 600, unitNum: 4, width: 150, height: 150});
               break;
             case 5:
-              unit = new Unit({x: 250, health: 200, attPower: 1200, range: 600, unitNum: 5, width: 160, height: 200});
+              unit = new Unit({x: 330, health: 200, attPower: 1200, range: 600, unitNum: 5, width: 160, height: 200});
               break;
           }
           friendlyUnits.push(unit);
@@ -403,7 +468,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 충돌 감지 - feature/intersection/gyu의 상세 로직 사용
   function checkCollisions() {
     friendlyUnits.forEach((friendly) => {
       enemyUnits.forEach((enemy) => {
