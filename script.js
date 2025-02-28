@@ -15,6 +15,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const rightSection = document.querySelector(".map-section.right"); // 맵 우측 스크롤 영역
   const coin = document.querySelector(".coin_box"); // 코인 수를 표시하는 박스
   let coin_count = document.getElementById("coin"); // 현재 코인 수를 표시하는 요소
+  const end = document.querySelector(".ending");
+  const fail = document.getElementById("fail");
+  const success = document.getElementById("success");
 
   // 상태 변수 - 게임의 전반적인 상태를 관리
   const GAME_SPEED = 2; // 유닛 이동 속도 (화소 단위/프레임)
@@ -24,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const friendlyUnits = []; // 아군 유닛을 저장하는 배열
   const enemyUnits = []; // 적군 유닛을 저장하는 배열
   const MAX_FRIENDLY_UNITS = 100; // 아군 유닛 최대 생성 가능 수
+  let gameActive = true; // 게임 진행 상태 관리 변수 추가
 
   // Tower 클래스 정의 (먼저 정의해야 인스턴스 생성 가능)
   class Tower {
@@ -69,6 +73,22 @@ document.addEventListener("DOMContentLoaded", () => {
       if (this.screenElem && this.screenElem.parentNode) {
         this.screenElem.parentNode.removeChild(this.screenElem);
         alert(`${this.name}가 파괴되었습니다.`);
+
+        gameActive = false; // 게임 중지
+        end.style.display = "block"; // 종료 화면 표시
+        content.style.display = "none"; // 게임 콘텐츠 숨김
+        unitCreateBtn.style.display = "none"; // 유닛 생성 버튼 숨김
+        towerUpgradeBtn.style.display = "none"; // 타워 업그레이드 버튼 숨김
+        coin.style.display = "none"; // 코인 숨김
+
+        // 아군 타워가 파괴되면 게임 종료 및 "FAIL" 표시
+        if (this.isFriendly) {
+          fail.style.display = "block"; // "FAIL" 표시
+        }
+        // 아군 타워가 파괴되면 게임 종료 및 "FAIL" 표시
+        else if (!this.isFriendly) {
+          success.style.display = "block"; // "SUCCESS" 표시
+        }
       }
     }
 
@@ -149,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 난이도 선택 이벤트 - "EASY" 버튼 클릭 시 게임 시작
-  if (easy && content && map) {
+  if (easy && content && map && end) {
     easy.addEventListener("click", () => {
       stage.style.display = "none"; // 난이도 선택 화면 숨김
       content.style.display = "block"; // 게임 콘텐츠 영역 표시
@@ -157,6 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
       unitCreateBtn.style.display = "block"; // 유닛 생성 버튼 표시
       towerUpgradeBtn.style.display = "block"; // 타워 업그레이드 버튼 표시
       coin.style.display = "block"; // 코인 표시 박스 표시
+      end.style.display = "none";
     });
   }
 
@@ -304,7 +325,7 @@ document.addEventListener("DOMContentLoaded", () => {
           let unit;
           switch (unitNumber) { // 유닛 번호에 따라 다른 속성으로 생성
             case 1:
-              unit = new Unit({x: newX, health: 100, attPower: 20, range: 50});
+              unit = new Unit({x: newX, health: 100, attPower: 4000, range: 50});
               break;
             case 2:
               unit = new Unit({x: newX, health: 200, attPower: 25, range: 55});
@@ -361,12 +382,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 적 유닛 자동 생성 - 5초마다 적 유닛 생성
   setInterval(() => {
-    if (enemyUnits.length < 1) { // 적 유닛이 없으면 생성
+    if (enemyUnits.length < 1 && gameActive)  { // 적 유닛이 없으면 생성
       const enemy = new Unit({
         x: 3600, // 맵 오른쪽에서 시작
         isEnemy: true,
         health: 100,
-        attPower: 10,
+        attPower: 5000,
         range: 50,
       });
       enemyUnits.push(enemy);
@@ -415,11 +436,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 게임 루프 - 게임 상태를 지속적으로 업데이트
   function gameLoop() {
-    checkCollisions(); // 충돌 체크
-    dontOverlap(); // 유닛 간격 조정
-    friendlyUnits.forEach(unit => unit.update()); // 아군 유닛 위치 업데이트
-    enemyUnits.forEach(unit => unit.update()); // 적군 유닛 위치 업데이트
-    requestAnimationFrame(gameLoop); // 다음 프레임 요청 (약 60fps)
+    if (gameActive) {
+      checkCollisions(); // 충돌 체크
+      dontOverlap(); // 유닛 간격 조정
+      friendlyUnits.forEach(unit => unit.update()); // 아군 유닛 위치 업데이트
+      enemyUnits.forEach(unit => unit.update()); // 적군 유닛 위치 업데이트
+      requestAnimationFrame(gameLoop); // 다음 프레임 요청 (약 60fps)
+    }
   }
 
   gameLoop(); // 게임 루프 시작
