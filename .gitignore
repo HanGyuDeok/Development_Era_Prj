@@ -176,3 +176,4 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/intellij,windows,macos
 /Development_Era_Prj.iml
 /.idea/modules.xml
+/.idea/Development_Era_Prj.iml
