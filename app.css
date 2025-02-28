@@ -1,3 +1,16 @@
+@font-face {
+    font-family: 'MapleStory';
+    src: url('./font/Maplestory OTF Light.otf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MapleStory';
+    src: url('./font/Maplestory OTF Bold.otf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
 
 html {
     position: relative;
@@ -7,6 +20,7 @@ html {
     margin: 0;
     overflow: hidden;
     font-weight: bold;
+    font-family: 'MapleStory', serif !important;
 }
 
 body {
