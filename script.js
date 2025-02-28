@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let coin_count = document.getElementById("coin"); // 현재 코인 수를 표시하는 요소
 
   // 상태 변수 - 게임의 전반적인 상태를 관리
-  const GAME_SPEED = 2; // 유닛 이동 속도 (화소 단위/프레임)
+  const GAME_SPEED = 5; // 유닛 이동 속도 (화소 단위/프레임)
   let isMouseInLeft = false; // 마우스가 맵 좌측에 있는지 여부 (스크롤 제어용)
   let isMouseInRight = false; // 마우스가 맵 우측에 있는지 여부 (스크롤 제어용)
   let currentCoin = parseInt(coin_count.textContent, 10); // 현재 보유 코인 수 (초기값은 HTML에서 가져옴)
@@ -123,8 +123,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 타워 인스턴스 생성
-  const friendlyTower = new Tower(true, 5000, 100, 100);
-  const enemyTower = new Tower(false, 10000, 100, 100);
+  const friendlyTower = new Tower(true, 5000, 100, 200);
+  const enemyTower = new Tower(false, 10000, 100, 200);
 
   // 오디오 버튼 이벤트 - 배경 음악 재생/정지 토글
   if (audioBtn && audio && icon) {
@@ -394,7 +394,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function createUnitSelectionScreen() {
     let buttonsHTML = '';
     for (let i = 1; i <= 5; i++) {
-      buttonsHTML += `<button class="unit-select" data-unit="${i}">유닛 ${i}/ 골드 : ${i}</button>`;
+      buttonsHTML += `<button class="unit-select unit${i}" data-unit="${i}">${i} $</button>`;
     }
     buttonsHTML += '<button id="backButton">뒤로 가기</button>';
     unitSelectionContainer.innerHTML = buttonsHTML;
@@ -411,8 +411,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (friendlyUnits.length < MAX_FRIENDLY_UNITS && currentCoin >= unitNumber) {
           currentCoin -= unitNumber;
           updateCoinDisplay();
-
-          const lastUnitX = friendlyUnits.length > 0 ? friendlyUnits[friendlyUnits.length - 1].x : 400;
 
           let unit;
           switch (unitNumber) {

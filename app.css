@@ -18,7 +18,7 @@ html {
     height: 100%;
     padding: 0;
     margin: 0;
-    overflow: hidden;
+    /*overflow: hidden;*/
     font-weight: bold;
     font-family: 'MapleStory', serif !important;
 }
@@ -527,12 +527,14 @@ p {
     background-color: rgba(0, 0, 0, 1);
     margin: 0;
     display: none;
+    font-family: 'MapleStory', serif !important;
 }
 
 #unitSelectionContainer {
     position: absolute;
     top: 2%;
     left: 5%;
+    font-family: 'MapleStory', serif !important;
 }
 
 .unit-creation {
@@ -552,14 +554,15 @@ p {
     position: relative;
     top: 0;
     left: 0;
-    width: 120px;
-    height: 50px;
-    font-size: 15px;
+    width: 70px;
+    height: 70px;
+    font-size: 28px;
     border-radius: 15px;
     color: white;
     background-color: rgba(0, 0, 0, 1);
-    border: none;
+    border: 2px solid white;
     margin-right: 20px;
+    font-family: 'MapleStory', serif !important;
 }
 
 #backButton {
@@ -572,6 +575,7 @@ p {
     background-color: rgba(0, 0, 0, 1);
     border: none;
     left: 40%;
+    font-family: 'MapleStory', serif !important;
 }
 
 .tower-upgrade {
@@ -591,17 +595,62 @@ p {
     background-color: rgba(0, 0, 0, 1);
     margin: 0;
     display: none;
+    font-family: 'MapleStory', serif !important;
 }
 
 #unitCreate:hover {
     background-color: rgb(248, 116, 167);
 }
 #towerUpgrade:hover {
-    background-color: rgba(12, 83, 220, 0.88);
-}
-.unit-select:hover {
-    background-color: rgba(22, 74, 186, 0.88);
+    background-color: rgb(184, 126, 255);
 }
 #backButton:hover {
-    background-color: rgba(51, 107, 232, 0.88);
+    background-color: rgba(255, 136, 50, 0.89);
+}
+.unit1:hover {
+    background-image: url('./ani/unit1_ani/unit1-1.png');
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    background-size: cover;
+    color: rgba(0,0,0,0%);
+    background-color: #ff7a24;
+}
+.unit2:hover{
+    background-image: url('./ani/unit2_ani/unit2-1.png');
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    background-size: cover;
+    color: rgba(0,0,0,0%);
+    background-color: #7c7c7c;
+
+}
+.unit3:hover{
+    background-image: url('./ani/unit3_ani/unit3-1.png');
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    background-size: cover;
+    background-position: bottom;
+    color: rgba(0,0,0,0%);
+    background-color: rgba(97, 255, 84, 0.76);
+}
+.unit4:hover{
+    background-image: url('./ani/unit4_ani/unit4-1.png');
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    background-size: cover;
+    color: rgba(0,0,0,0%);
+    background-color: #7c6aae;
+}
+.unit5:hover{
+    background-image: url('./ani/unit5_ani/unit5-1.png');
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    background-size: cover;
+    color: rgba(0,0,0,0%);
+    background-color: goldenrod;
 }
