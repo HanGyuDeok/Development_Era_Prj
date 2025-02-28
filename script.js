@@ -324,24 +324,23 @@ document.addEventListener("DOMContentLoaded", () => {
           updateCoinDisplay();
 
           const lastUnitX = friendlyUnits.length > 0 ? friendlyUnits[friendlyUnits.length - 1].x : 400;
-          const newX = lastUnitX - 250;
 
           let unit;
           switch (unitNumber) {
             case 1:
-              unit = new Unit({x: newX, health: 100, attPower: 20, range: 50, unitNum: 1, width: 200, height: 200});
+              unit = new Unit({x: 250, health: 100, attPower: 20, range: 50, unitNum: 1, width: 200, height: 200});
               break;
             case 2:
-              unit = new Unit({x: newX, health: 200, attPower: 25, range: 50, unitNum: 2, width: 200, height: 250});
+              unit = new Unit({x: 250, health: 200, attPower: 25, range: 50, unitNum: 2, width: 200, height: 250});
               break;
             case 3:
-              unit = new Unit({x: newX, health: 300, attPower: 30, range: 50, unitNum: 3, width: 200, height: 200});
+              unit = new Unit({x: 250, health: 300, attPower: 30, range: 50, unitNum: 3, width: 200, height: 200});
               break;
             case 4:
-              unit = new Unit({x: newX, health: 100, attPower: 50, range: 600, unitNum: 4, width: 120, height: 150});
+              unit = new Unit({x: 250, health: 100, attPower: 50, range: 600, unitNum: 4, width: 120, height: 150});
               break;
             case 5:
-              unit = new Unit({x: newX, health: 200, attPower: 10000, range: 600, unitNum: 5, width: 160, height: 200});
+              unit = new Unit({x: 250, health: 200, attPower: 10000, range: 600, unitNum: 5, width: 160, height: 200});
               break;
           }
           friendlyUnits.push(unit);

@@ -108,6 +108,7 @@ body {
     top: 20.7%;
     left: 4.5%;
     transition: all 0.5s linear;
+    z-index: 2;
 }
 
 .center {
@@ -117,6 +118,7 @@ body {
     top: 20.7%;
     left: 30%;
     transition: all 0.5s linear;
+    z-index: 2;
 }
 
 .right {
@@ -126,6 +128,7 @@ body {
     top: 20.7%;
     left: 75.7%;
     transition: all 0.5s linear;
+    z-index: 2;
 }
 
 .option {
@@ -187,6 +190,7 @@ p {
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
+    z-index: 1;
 }
 
 #enemy-base-tower {
@@ -200,6 +204,7 @@ p {
     background-size: cover;
     background-position: center;
     filter: grayscale(1) brightness(80%);
+    z-index: 1;
 }
 
 #friendly_base_bar {
