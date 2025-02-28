@@ -259,7 +259,9 @@ document.addEventListener("DOMContentLoaded", () => {
       this.healthBar.style.height = "100%";
       this.healthBar.style.background = `
       linear-gradient(to bottom, rgba(255, 255, 255, 0.3), transparent),
-      linear-gradient(to right, ${isEnemy ? '#ff3019' : '#00cc00'} 0%, ${isEnemy ? '#e73827' : '#009900'} 50%, ${isEnemy ? '#ff3019' : '#00cc00'} 100%)
+      linear-gradient(to right, ${isEnemy ? '#ff3019' : '#00cc00'} 0%, 
+      ${isEnemy ? '#e73827' : '#009900'} 50%, 
+      ${isEnemy ? '#ff3019' : '#00cc00'} 100%)
     `; // 적군은 빨강, 아군은 초록 계열
       this.healthBar.style.boxShadow = "inset 0 0 5px #000";
       this.healthBar.style.borderRadius = "5px";
