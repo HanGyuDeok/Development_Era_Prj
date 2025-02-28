@@ -244,6 +244,17 @@ p {
     border-radius: 5px;
     transition: width 0.3s ease;
 }
+.health-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    text-shadow: 1px 1px 2px #000;
+    z-index: 20; /* 체력 바 위에 표시 */
+    font-size: 16px;
+    pointer-events: none; /* 클릭 방지 */
+}
 
 @keyframes unit1-moving {
     0% { background-image: url('./ani/unit1_ani/unit1-1.png'); }

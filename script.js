@@ -100,6 +100,19 @@ document.addEventListener("DOMContentLoaded", () => {
       if (this.healthBar) {
         const healthPercentage = (this.health / this.maxHealth) * 100;
         this.healthBar.style.width = `${healthPercentage}%`;
+        // 체력 수치를 텍스트로 표시 (예: "3000 / 5000")
+        const barContainer = this.healthBar.parentElement; // enemy_base_bar 또는 friendly_base_bar
+        let healthText = barContainer.querySelector('.health-text');
+
+        // health-text가 없으면 한 번만 생성
+        if (!healthText) {
+          healthText = document.createElement('div');
+          healthText.className = 'health-text';
+          barContainer.appendChild(healthText); // enemy_base_bar에 추가
+        }
+
+        // 숫자만 업데이트
+        healthText.textContent = `${Math.round(this.health)} / ${this.maxHealth}`;
       }
     }
   }
