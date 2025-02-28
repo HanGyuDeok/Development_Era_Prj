@@ -1,4 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
+  //TODO:
+  //     1. 벨런스 패치 필요
+  //     2. 타워가 유닛을 처치 했을 시 투사체 안사라지는 버그 수정 필요
+  //     3. 성 업그레이드 하면 타워 공격력 증가 및 공속 증가 필요 && 크기로 인해 적 유닛과 중첩 되는 이슈
+  //     4. 게임종료 부분 구현 필요 && 재시작
+  // 데미지, 공격속도 등등 수치로 변화가 있는것들은 주석을 달 것 검색으로 테스트 쉽게 구현
+
   // DOM 요소 - HTML에서 필요한 요소들을 JavaScript로 가져옴
   const audio = document.getElementById("audio"); // 배경 음악을 재생할 오디오 요소
   const audioBtn = document.getElementById("audio_btn"); // 오디오 재생/정지 버튼
@@ -17,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let coin_count = document.getElementById("coin"); // 현재 코인 수를 표시하는 요소
 
   // 상태 변수 - 게임의 전반적인 상태를 관리
-  const GAME_SPEED = 5; // 유닛 이동 속도 (화소 단위/프레임)
+  const GAME_SPEED = 2; // 유닛 이동 속도 (화소 단위/프레임)
   let isMouseInLeft = false; // 마우스가 맵 좌측에 있는지 여부 (스크롤 제어용)
   let isMouseInRight = false; // 마우스가 맵 우측에 있는지 여부 (스크롤 제어용)
   let currentCoin = parseInt(coin_count.textContent, 10); // 현재 보유 코인 수 (초기값은 HTML에서 가져옴)
@@ -26,17 +33,62 @@ document.addEventListener("DOMContentLoaded", () => {
   const MAX_FRIENDLY_UNITS = 100; // 아군 유닛 최대 생성 가능 수
   const MAP_WIDTH = 3800; // 맵의 너비 (feature/intersection/gyu에서 추가)
 
+  class Projectile {
+    constructor(x, y, target, damage) {
+      this.x = x;
+      this.y = y;
+      this.target = target;
+      this.damage = damage;
+      this.speed = 5 * GAME_SPEED; // 타워 투사체 이동속도 는 게임스피드와 비례하여 올라가야함으로 다른 공격속도 관련 이동속도 관련부분은 이런식으로 수정해야함
+      this.element = document.createElement("img");
+      this.element.src = "img/stone.png";
+      this.element.style.position = "absolute";
+      this.element.style.width = "50px";  // 타워 투사체 크기
+      this.element.style.height = "50px"; // 타워 투사체 크기
+      this.element.style.left = `${this.x}px`;
+      this.element.style.top = `${this.y}px`;
+      document.querySelector(".content").appendChild(this.element);
+      this.move();
+    }
+
+    // 투사체가 목표를 향해 이동
+    move() {
+      const interval = setInterval(() => {
+        const dx = this.target.x - this.x;
+        const dy = this.target.element.offsetTop - this.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < 10) {
+          // 목표에 명중 시 데미지를 입히고 제거
+          this.target.health -= this.damage;
+          this.target.updateHealthBar();
+          if (this.target.health <= 0) {
+            this.element.remove();
+            this.target.remove();
+          }
+          clearInterval(interval);
+        } else {
+          // 목표를 향해 이동
+          this.x += (dx / distance) * this.speed;
+          this.y += (dy / distance) * this.speed;
+          this.element.style.left = `${this.x}px`;
+          this.element.style.top = `${this.y}px`;
+        }
+      }, 50);
+    }
+  }
+
   // Tower 클래스 정의
+  // 타워 클래스: 아군 및 적군 타워를 구현
   class Tower {
     constructor(isFriendly, health, attackPower, range) {
       this.screenElem = document.getElementById(isFriendly ? 'friendly-base-tower' : 'enemy-base-tower');
       this.isFriendly = isFriendly;
       this.atktype = 'tower';
-      this.health = health;
-      this.maxHealth = health;
-      this.attackPower = attackPower;
-      this.range = range;
-      this.x = isFriendly ? 240 : 3820;
+      this.health = health;           // 타워의 체력
+      this.maxHealth = health;        // 타워의 최대 체력
+      this.attackPower = attackPower; // 타워의 공격력
+      this.range = range;             // 타워의 공격 범위
+      this.x = isFriendly ? 240 : 3520; // 유닛이 멈추는 위치 아군 : 적
       this.name = isFriendly ? '아군 타워' : '적군 타워';
       this.level = 1;
       this.isDestroyed = false; // 타워 파괴 상태 추적 (feature/intersection/gyu에서 추가)
@@ -46,11 +98,29 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!this.healthBar) {
         console.error(`${this.name}의 체력 바를 찾을 수 없습니다.`);
       }
+      this.startAttacking();
+    }
+
+    // 주기마다 타워가 공격 수행
+    startAttacking() {
+      setInterval(() => {
+        if (this.isDestroyed) return;
+        const targets = this.isFriendly ? enemyUnits : friendlyUnits;
+        const enemiesInRange = targets.filter(unit => this.distanceTo(unit) <= this.range);
+        if (enemiesInRange.length > 0) {
+          new Projectile(this.x, 100, enemiesInRange[0], this.attackPower);
+        }
+      }, 1000); // 공격 속도 (1초마다 공격) 이곳을 수정하기보단 위에 공속 수정
+    }
+
+    // 목표까지의 거리 계산
+    distanceTo(target) {
+      return Math.abs(this.x - target.x);
     }
 
     attack(target) {
       if (!this.isDestroyed && target.atktype === "unit") {
-        target.health -= this.attackPower;
+        //target.health -= this.attackPower;
         if (target.health <= 0) {
           target.remove();
           currentCoin += 1;
@@ -63,8 +133,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!this.isDestroyed) {
         this.health -= damage;
         if (this.health <= 0) {
-          this.health = 0;
           this.destroy();
+          this.health = 0;
         }
         this.updateHealthBar();
         console.log(`${this.name} 체력: ${this.health}`);
@@ -88,11 +158,13 @@ document.addEventListener("DOMContentLoaded", () => {
         this.range += 10;
         if (this.screenElem) {
           if (this.level === 2) {
+            //TODO: 성 업그레이드 하면 타워 공격력 증가 및 공속 증가 필요
             this.screenElem.style.backgroundImage = "url('img/upgraded-tower2.png')";
             this.screenElem.style.width = "550px";
             this.screenElem.style.backgroundSize = "contain";
             this.screenElem.style.left = "60px";
           } else if (this.level === 3) {
+            //TODO: 성 업그레이드 하면 타워 공격력 증가 및 공속 증가 필요 && 크기로 인해 적 유닛과 중첩 되는 이슈
             this.screenElem.style.backgroundImage = "url('img/upgraded-tower.png')";
             this.screenElem.style.width = "600px";
             this.screenElem.style.backgroundSize = "contain";
@@ -125,8 +197,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 타워 인스턴스 생성
-  const friendlyTower = new Tower(true, 5000, 5, 200);
-  const enemyTower = new Tower(false, 10000, 5, 200);
+  const friendlyTower = new Tower(true, 5000, 100, 200);
+  const enemyTower = new Tower(false, 10000, 100, 200);
 
   // 오디오 버튼 이벤트 - 배경 음악 재생/정지 토글
   if (audioBtn && audio && icon) {
@@ -174,7 +246,7 @@ document.addEventListener("DOMContentLoaded", () => {
         enemyUnits.push(enemy);
         console.log("새로운 적 유닛 생성됨", enemyUnits);
       }
-    }, 5000);
+    }, 5000); // 적 유닛 생성시간
   }
 
   // 난이도 선택 이벤트 - "EASY" 버튼 클릭 시 게임 시작
