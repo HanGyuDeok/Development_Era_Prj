@@ -53,6 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
         target.health -= this.attackPower;
         if (target.health <= 0) {
           target.remove();
+          currentCoin += 1;
+          updateCoinDisplay();
         }
       }
     }
@@ -123,8 +125,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 타워 인스턴스 생성
-  const friendlyTower = new Tower(true, 5000, 100, 200);
-  const enemyTower = new Tower(false, 10000, 100, 200);
+  const friendlyTower = new Tower(true, 5000, 5, 200);
+  const enemyTower = new Tower(false, 10000, 5, 200);
 
   // 오디오 버튼 이벤트 - 배경 음악 재생/정지 토글
   if (audioBtn && audio && icon) {
