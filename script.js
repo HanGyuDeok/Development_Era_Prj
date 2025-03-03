@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const start = document.querySelector(".start"); // 게임 시작 버튼을 포함한 시작 화면
   const stage = document.querySelector(".stage"); // 난이도 선택 화면
   const easy = document.getElementById("easy"); // 쉬운 난이도 선택 버튼
+  const normal = document.getElementById("normal");
   const map = document.querySelector(".map"); // 게임 맵을 표시하는 영역
   const content = document.querySelector(".content"); // 유닛과 타워가 표시되는 실제 게임 콘텐츠 영역
   const unitCreateBtn = document.getElementById("unitCreate"); // 유닛 생성 버튼
@@ -22,6 +23,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const rightSection = document.querySelector(".map-section.right"); // 맵 우측 스크롤 영역
   const coin = document.querySelector(".coin_box"); // 코인 수를 표시하는 박스
   let coin_count = document.getElementById("coin"); // 현재 코인 수를 표시하는 요소
+  const end = document.querySelector(".ending");
+  const fail = document.getElementById("fail");
+  const success = document.getElementById("success");
+  const home = document.getElementById("home");
 
   // 상태 변수 - 게임의 전반적인 상태를 관리
   const GAME_SPEED = 2; // 유닛 이동 속도 (화소 단위/프레임)
@@ -32,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const enemyUnits = []; // 적군 유닛을 저장하는 배열
   const MAX_FRIENDLY_UNITS = 100; // 아군 유닛 최대 생성 가능 수
   const MAP_WIDTH = 3800; // 맵의 너비 (feature/intersection/gyu에서 추가)
+  let gameActive = true; // 게임 진행 상태 관리 변수 추가
 
   class Projectile {
     constructor(x, y, target, damage) {
@@ -146,6 +152,27 @@ document.addEventListener("DOMContentLoaded", () => {
         this.screenElem.parentNode.removeChild(this.screenElem);
         this.isDestroyed = true;
         alert(`${this.name}가 파괴되었습니다.`);
+
+        gameActive = false; // 게임 중지
+        home.style.display = "block";
+        end.style.display = "block"; // 종료 화면 표시
+        content.style.display = "none"; // 게임 콘텐츠 숨김
+        unitCreateBtn.style.display = "none"; // 유닛 생성 버튼 숨김
+        towerUpgradeBtn.style.display = "none"; // 타워 업그레이드 버튼 숨김
+        coin.style.display = "none"; // 코인 숨김
+
+        // 아군 타워가 파괴되면 게임 종료 및 "FAIL" 표시
+        if (this.isFriendly) {
+          fail.style.display = "block"; // "FAIL" 표시
+        }
+        // 적군 타워가 파괴되면 게임 종료 및 "SUCCESS" 표시
+        else if (!this.isFriendly) {
+          success.style.display = "block"; // "SUCCESS" 표시
+          if (normal) {
+            normal.style.backgroundImage = "none"; // 잠금 아이콘 제거
+            normal.style.paddingLeft = "0"; // 패딩도 원래대로 조정
+          }
+        }
       }
     }
 
@@ -232,12 +259,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 5초마다 적 유닛 생성
     setInterval(() => {
-      if (!enemyTower.isDestroyed && enemyUnits.length < 2) {
+      if (!enemyTower.isDestroyed && enemyUnits.length < 2 && gameActive) {
         const enemy = new Unit({
           x: 3600,
           y: 40,
           isEnemy: true,
-          health: 1200,
+          health: 5,
           attPower: 100,
           range: 170,
           width: 300,
@@ -259,6 +286,75 @@ document.addEventListener("DOMContentLoaded", () => {
       towerUpgradeBtn.style.display = "block";
       coin.style.display = "block";
       startGameLogic();
+    });
+  }
+
+  // 게임 종료 후 스테이지 선택 화면으로 돌아감
+  if (home) {
+    home.addEventListener("click", () => {
+      // 게임 상태 초기화
+      gameActive = false; // 게임이 일시 중지/중지된 상태로 보장
+      friendlyUnits.forEach(unit => unit.remove()); // 모든 아군 유닛 제거
+      enemyUnits.forEach(unit => unit.remove()); // 모든 적군 유닛 제거
+      friendlyUnits.length = 0; // 배열 비우기
+      enemyUnits.length = 0;
+
+      // 타워 초기화
+      friendlyTower.health = friendlyTower.maxHealth; // 아군 타워 체력을 최대치로 초기화
+      friendlyTower.level = 1; // 아군 타워 레벨을 1로 초기화
+      friendlyTower.isDestroyed = false; // 파괴 상태 초기화
+      friendlyTower.updateHealthBar(); // 체력 바 업데이트
+
+      enemyTower.health = enemyTower.maxHealth;
+      enemyTower.level = 1;
+      enemyTower.isDestroyed = false;
+      enemyTower.updateHealthBar();
+
+      // UI 요소 초기화
+      const start = document.querySelector(".start");
+      const stage = document.querySelector(".stage");
+      const end = document.querySelector(".ending");
+      const fail = document.getElementById("fail");
+      const success = document.getElementById("success");
+      const content = document.querySelector(".content");
+      const unitCreateBtn = document.getElementById("unitCreate");
+      const towerUpgradeBtn = document.getElementById("towerUpgrade");
+      const coin = document.querySelector(".coin_box");
+
+      // 종료 화면 및 게임 콘텐츠 숨기기, 스테이지 화면 표시
+      end.style.display = "none"; // 종료 화면 숨김
+      fail.style.display = "none"; // "FAIL" 메시지 숨김
+      success.style.display = "none"; // "SUCCESS" 메시지 숨김
+      content.style.display = "none"; // 게임 콘텐츠 숨김
+      unitCreateBtn.style.display = "none"; // 유닛 생성 버튼 숨김
+      towerUpgradeBtn.style.display = "none"; // 타워 업그레이드 버튼 숨김
+      coin.style.display = "none"; // 코인 표시 숨김
+      home.style.display = "none"; // 클릭 후 홈 버튼 숨김
+
+      // 스테이지 화면 표시 (난이도 선택 화면)
+      start.style.display = "none"; // 시작 화면 숨김
+      stage.style.display = "flex"; // 스테이지(난이도 선택) 화면 표시
+
+      // 코인 수를 초기값으로 리셋
+      currentCoin = 10;
+      updateCoinDisplay();
+
+      // 타워 외형 초기화
+      const friendlyTowerElem = document.getElementById("friendly-base-tower");
+      const enemyTowerElem = document.getElementById("enemy-base-tower");
+      if (friendlyTowerElem) {
+        friendlyTowerElem.style.backgroundImage = "url('img/base-tower.png')";
+        friendlyTowerElem.style.width = "400px";
+        friendlyTowerElem.style.backgroundSize = "cover";
+        friendlyTowerElem.style.left = "3%";
+      }
+      if (enemyTowerElem) {
+        enemyTowerElem.style.backgroundImage = "url('img/base-tower.png')";
+        enemyTowerElem.style.width = "400px";
+        enemyTowerElem.style.backgroundSize = "cover";
+        enemyTowerElem.style.left = "88%";
+      }
+      document.getElementById("friendly_base_bar").style.width = "250px"; // 체력 바 너비 리셋
     });
   }
 
