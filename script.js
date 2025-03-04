@@ -60,18 +60,26 @@ document.addEventListener("DOMContentLoaded", () => {
     // 투사체가 목표를 향해 이동
     move() {
       const interval = setInterval(() => {
+        // 목표가 존재하고 DOM에 남아있는지 확인
+        if (!this.target || !this.target.element || !document.body.contains(this.target.element)) {
+          this.element.remove(); // 투사체 제거
+          clearInterval(interval); // 인터벌 종료
+          return;
+        }
+
         const dx = this.target.x - this.x;
         const dy = this.target.element.offsetTop - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
+
         if (distance < 10) {
           // 목표에 명중 시 데미지를 입히고 제거
           this.target.health -= this.damage;
           this.target.updateHealthBar();
           if (this.target.health <= 0) {
-            this.element.remove();
-            this.target.remove();
+            this.target.remove(); // 유닛 제거
+            this.element.remove(); // 투사체 제거
           }
-          clearInterval(interval);
+          clearInterval(interval); // 목표에 도달했으니 인터벌 종료
         } else {
           // 목표를 향해 이동
           this.x += (dx / distance) * this.speed;
